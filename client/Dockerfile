@@ -13,6 +13,10 @@ RUN npm install
 # Copy the rest of the application to the container
 COPY . .
 
+# Set environment variable
+ENV REACT_APP_VERSION=v1.1.0
+ENV GENERATE_SOURCEMAP=false
+
 # Build the React app for production
 RUN npm run build
 
