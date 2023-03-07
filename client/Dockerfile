@@ -8,6 +8,8 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install dependencies
+RUN npm install -g npm-check-updates
+RUN ncu -u
 RUN npm install
 
 # Copy the rest of the application to the container
