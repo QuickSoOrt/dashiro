@@ -1,34 +1,24 @@
 // assets
-import { LoginOutlined, ProfileOutlined } from '@ant-design/icons';
+import { ChromeOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
-    LoginOutlined,
-    ProfileOutlined
+    ChromeOutlined
 };
 
 // ==============================|| MENU ITEMS - EXTRA PAGES ||============================== //
 
 const pages = {
-    id: 'authentication',
-    title: 'Authentication',
+    id: 'pages',
+    title: 'Pages',
     type: 'group',
     children: [
         {
-            id: 'login1',
-            title: 'Login',
+            id: 'sample-page',
+            title: 'Sample Page',
             type: 'item',
-            url: '/login',
-            icon: icons.LoginOutlined,
-            target: true
-        },
-        {
-            id: 'register1',
-            title: 'Register',
-            type: 'item',
-            url: '/register',
-            icon: icons.ProfileOutlined,
-            target: true
+            url: '/sample-page',
+            icon: icons.ChromeOutlined
         }
     ]
 };
