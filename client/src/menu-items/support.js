@@ -1,9 +1,9 @@
 // assets
-import { QuestionOutlined } from '@ant-design/icons';
+import { FileTextOutlined } from '@ant-design/icons';
 
 // icons
 const icons = {
-    QuestionOutlined
+    FileTextOutlined
 };
 
 // ==============================|| MENU ITEMS - SAMPLE PAGE & DOCUMENTATION ||============================== //
@@ -17,10 +17,8 @@ const support = {
             id: 'documentation',
             title: 'Documentation',
             type: 'item',
-            url: 'https://codedthemes.gitbook.io/mantis-react/',
-            icon: icons.QuestionOutlined,
-            external: true,
-            target: true
+            url: '/sample-page',
+            icon: icons.FileTextOutlined
         }
     ]
 };

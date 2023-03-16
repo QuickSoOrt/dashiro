@@ -1,6 +1,6 @@
 // material-ui
 import { Box, IconButton, Link, useMediaQuery } from '@mui/material';
-import { GithubOutlined } from '@ant-design/icons';
+import { UserOutlined } from '@ant-design/icons';
 
 // project import
 import Search from './Search';
@@ -20,14 +20,14 @@ const HeaderContent = () => {
 
             <IconButton
                 component={Link}
-                href="https://github.com/codedthemes/mantis-free-react-admin-template"
+                href="https://brunomeira.online"
                 target="_blank"
                 disableRipple
                 color="secondary"
-                title="Download Free Version"
+                title="Author"
                 sx={{ color: 'text.primary', bgcolor: 'grey.100' }}
             >
-                <GithubOutlined />
+                <UserOutlined />
             </IconButton>
 
             <Notification />
