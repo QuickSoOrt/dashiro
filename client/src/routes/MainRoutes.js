@@ -11,7 +11,7 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/SamplePage')));
 
 // render - tools
-const ImportFilePage = Loadable(lazy(() => import('pages/tools/ImportFilePage')));
+const ImportFilePage = Loadable(lazy(() => import('pages/tools/ImportFilePage/index')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
