@@ -1,86 +1,66 @@
-const expectedHeaders = [
-    'Data',
-    'Hora',
-    'Produto',
-    'ISIN',
-    'Bolsa de',
-    'Bolsa',
-    'Quantidade',
-    'Preços',
-    '',
-    'Valor local',
-    '',
-    'Valor',
-    '',
-    'Taxa de Câmbio',
-    'Custos de transação',
-    '',
-    'Total',
-    '',
-    'ID da Ordem'
-];
+class FileParser {
+    constructor() {}
 
-export default class FileParser {
-    constructor() {
+    splitByCommas = (str) => {
+        const values = [];
 
-    }
+        let currentVal = '';
 
-    parse(file) {
-        const rows = file.split('\n');
+        let insideQuotes = false;
 
-        const headers = rows[0].split(',');
-
-        if (!headers.every((header, i) => header === expectedHeaders[i])) {
-            console.log('Headers are not in the correct order');
-            return;
+        for (let i = 0; i < str.length; i++) {
+            const char = str[i];
+            if (char === ',' && !insideQuotes) {
+                values.push(currentVal);
+                currentVal = '';
+            } else if (char === '"') {
+                insideQuotes = !insideQuotes;
+            } else {
+                currentVal += char;
+            }
         }
 
-        const data = [];
+        values.push(currentVal);
 
-        for (let i = 1; i < rows.length; i++) {
-            const row = rows[i].split(',');
+        return values;
+    };
 
-            // Check if the row has the correct number of columns
-            if (row.length !== headers.length) {
-                console.log(`Row ${i} has the wrong number of columns`);
-                continue;
-            }
+    async parse(file) {
+        const lines = file.trim().split('\n');
 
-            const obj = {};
+        const parsedLines = [];
 
-            for (let j = 0; j < headers.length; j++) {
-                obj[headers[j]] = row[j];
-            }
+        console.log(lines.length);
 
-            // Check if the data types of certain columns are correct
-            if (typeof obj['Quantidade'] !== 'number') {
-                console.log(`Row ${i}: Quantidade is not a number`);
-                continue;
-            }
+        for (let i = 1; i < lines.length; i++) {
+            const line = lines[i];
 
-            if (typeof obj['Preços'] !== 'number') {
-                console.log(`Row ${i}: Preços is not a number`);
-                continue;
-            }
+            const values = this.splitByCommas(line);
 
-            if (typeof obj['Valor local'] !== 'number') {
-                console.log(`Row ${i}: Valor local is not a number`);
-                continue;
-            }
+            const parsedLine = {
+                date: values[0],
+                hour: values[1],
+                dateValue: values[2],
+                product: values[3],
+                isin: values[4],
+                description: values[5],
+                exchangeTax: values[6],
+                change: {
+                    currency: values[7],
+                    value: values[8]
+                },
+                balance: {
+                    currency: values[9],
+                    value: values[10]
+                },
+                idOrdem: values[11]
+            };
 
-            if (typeof obj['Valor'] !== 'number') {
-                console.log(`Row ${i}: Valor is not a number`);
-                continue;
-            }
-
-            if (typeof obj['Taxa de Câmbio'] !== 'number') {
-                console.log(`Row ${i}: Taxa de Câmbio is not a number`);
-                continue;
-            }
-
-            data.push(obj);
-
-            console.log(data);
+            parsedLines.push(parsedLine);
         }
+
+        return parsedLines;
     }
 }
+
+export default FileParser;

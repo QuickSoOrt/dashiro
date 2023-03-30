@@ -11,23 +11,6 @@ import NumberFormat from 'react-number-format';
 // project import
 import Dot from 'components/@extended/Dot';
 
-function createData(trackingNo, name, fat, carbs, protein) {
-    return { trackingNo, name, fat, carbs, protein };
-}
-
-const rows = [
-    createData(84564564, 'Camera Lens', 40, 40570),
-    createData(98764564, 'Laptop', 300, 180139),
-    createData(98756325, 'Mobile', 355, 90989),
-    createData(98652366, 'Handset', 50, 10239),
-    createData(13286564, 'Computer Accessories', 100, 83348),
-    createData(86739658, 'TV', 99, 410780),
-    createData(13256498, 'Keyboard', 125, 70999),
-    createData(98753263, 'Mouse', 89, 10570),
-    createData(98753275, 'Desktop', 185, 98063),
-    createData(98753291, 'Chair', 100, 14001)
-];
-
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
         return -1;
@@ -58,28 +41,52 @@ function stableSort(array, comparator) {
 
 const headCells = [
     {
-        id: 'trackingNo',
+        id: 'date',
         align: 'left',
         disablePadding: false,
-        label: 'Tracking No.'
+        label: 'Date'
     },
     {
-        id: 'name',
-        align: 'left',
+        id: 'hour',
+        align: 'right',
         disablePadding: true,
-        label: 'Product Name'
+        label: 'Hour'
     },
     {
-        id: 'fat',
-        align: 'right',
+        id: 'dateValue',
+        align: 'left',
         disablePadding: false,
-        label: 'Total Order'
+        label: 'Date Value'
     },
     {
-        id: 'protein',
+        id: 'product',
+        align: 'left',
+        disablePadding: false,
+        label: 'Product'
+    },
+    {
+        id: 'description',
+        align: 'left',
+        disablePadding: false,
+        label: 'Description'
+    },
+    {
+        id: 'tax',
         align: 'right',
         disablePadding: false,
-        label: 'Total Amount'
+        label: 'Tax'
+    },
+    {
+        id: 'change',
+        align: 'right',
+        disablePadding: false,
+        label: 'Change'
+    },
+    {
+        id: 'balance',
+        align: 'right',
+        disablePadding: false,
+        label: 'Balance'
     }
 ];
 
@@ -111,10 +118,12 @@ OrderTableHead.propTypes = {
 
 // ==============================|| ORDER TABLE ||============================== //
 
-export default function ImportedFileVisualization() {
-    const [order] = useState('asc');
-    const [orderBy] = useState('trackingNo');
+export default function ImportedFileVisualization(props) {
+    const [order] = useState('desc');
+    const [orderBy] = useState('date');
     const [selected] = useState([]);
+
+    const [rows] = useState(props.rows);
 
     const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
 
@@ -127,7 +136,7 @@ export default function ImportedFileVisualization() {
                     position: 'relative',
                     display: 'block',
                     maxWidth: '100%',
-                    '& td, & th': { whiteSpace: 'nowrap' }
+                    //'& td, & th': { whiteSpace: 'nowrap' }
                 }}
             >
                 <Table
@@ -157,16 +166,17 @@ export default function ImportedFileVisualization() {
                                     key={row.trackingNo}
                                     selected={isItemSelected}
                                 >
-                                    <TableCell component="th" id={labelId} scope="row" align="left">
-                                        <Link color="secondary" component={RouterLink} to="">
-                                            {row.trackingNo}
-                                        </Link>
-                                    </TableCell>
-                                    <TableCell align="left">{row.name}</TableCell>
-                                    <TableCell align="right">{row.fat}</TableCell>
-                                    <TableCell align="right">
+                                    <TableCell align="left">{row.date}</TableCell>
+                                    <TableCell align="right">{row.hour}</TableCell>
+                                    <TableCell align="left">{row.dateValue}</TableCell>
+                                    <TableCell align="left">{row.product}</TableCell>
+                                    <TableCell align="left">{row.description}</TableCell>
+                                    <TableCell align="right">{row.exchangeTax}</TableCell>
+                                    <TableCell align="right">{row.change.value}</TableCell>
+                                    <TableCell align="right">{row.balance.value}</TableCell>
+                                    {/* <TableCell align="right">
                                         <NumberFormat value={row.protein} displayType="text" thousandSeparator prefix="$" />
-                                    </TableCell>
+                                    </TableCell> */}
                                 </TableRow>
                             );
                         })}

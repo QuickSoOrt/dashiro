@@ -25,6 +25,8 @@ const ImportFilePage = () => {
 
     const [selectedFileContent, setSelectedFileContent] = useState('');
 
+    const [parsedRows, setParsedRows]= useState(null);
+
     const onDrop = (acceptedFiles) => {
         setSelectedFile(acceptedFiles[0]);
     };
@@ -33,7 +35,7 @@ const ImportFilePage = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     }
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (activeStep === 0) {
             if (selectedFile) {
                 const reader = new FileReader();
@@ -45,12 +47,13 @@ const ImportFilePage = () => {
 
                 reader.readAsText(selectedFile);
 
-                const csvContent = `Data,Hora,Produto,ISIN,Bolsa de,Bolsa,Quantidade,Preços,,Valor local,,Valor,,Taxa de Câmbio,Custos de transação,,Total,,ID da Ordem
-17-03-2023,14:43,MEDICAL PROPERTIES TRU,US58463J3041,NSY,CDED,50,8.0050,USD,-400.25,USD,-376.67,EUR,1.0626,,,-376.67,EUR,4b54e707-50ce-4536-9158-3d476b493000`;
-
                 const fileParser = new FileParser();
 
-                fileParser.parse(selectedFileContent);
+                const parsedRowsAux = await fileParser.parse(selectedFileContent);
+
+                setParsedRows(parsedRowsAux);
+
+                console.log(parsedRows);
             }
         }
 
@@ -91,7 +94,7 @@ const ImportFilePage = () => {
         }
         else if (activeStep == 1) {
             return (
-                <ImportedFileVisualization importedFileContent={selectedFileContent}/>
+                <ImportedFileVisualization rows={parsedRows}/>
             )
         }
     }
