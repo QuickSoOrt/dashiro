@@ -3,13 +3,14 @@ import { useState } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
 
 // material-ui
-import { Box, Link, Stack, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Link, TablePagination, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
 
 // third-party
 import NumberFormat from 'react-number-format';
 
 // project import
 import Dot from 'components/@extended/Dot';
+import { TableFooter } from '../../../../node_modules/@mui/material/index';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -125,7 +126,19 @@ export default function ImportedFileVisualization(props) {
 
     const [rows] = useState(props.rows);
 
+    const [page, setPage] = useState(0);
+    const [rowsPerPage, setRowsPerPage] = useState(5);
+
     const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
 
     return (
         <Box>
@@ -135,7 +148,7 @@ export default function ImportedFileVisualization(props) {
                     overflowX: 'auto',
                     position: 'relative',
                     display: 'block',
-                    maxWidth: '100%',
+                    maxWidth: '100%'
                     //'& td, & th': { whiteSpace: 'nowrap' }
                 }}
             >
@@ -152,7 +165,10 @@ export default function ImportedFileVisualization(props) {
                 >
                     <OrderTableHead order={order} orderBy={orderBy} />
                     <TableBody>
-                        {stableSort(rows, getComparator(order, orderBy)).map((row, index) => {
+                        {stableSort(
+                            rowsPerPage > 0 ? rows.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows,
+                            getComparator(order, orderBy)
+                        ).map((row, index) => {
                             const isItemSelected = isSelected(row.trackingNo);
                             const labelId = `enhanced-table-checkbox-${index}`;
 
@@ -181,6 +197,26 @@ export default function ImportedFileVisualization(props) {
                             );
                         })}
                     </TableBody>
+                    <TableFooter>
+                        <TableRow>
+                            <TablePagination
+                                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                                colSpan={3}
+                                count={rows.length}
+                                rowsPerPage={rowsPerPage}
+                                page={page}
+                                SelectProps={{
+                                    inputProps: {
+                                        'aria-label': 'rows per page'
+                                    },
+                                    native: true
+                                }}
+                                onPageChange={handleChangePage}
+                                onRowsPerPageChange={handleChangeRowsPerPage}
+                                // ActionsComponent={TablePaginationActions}
+                            />
+                        </TableRow>
+                    </TableFooter>
                 </Table>
             </TableContainer>
         </Box>
