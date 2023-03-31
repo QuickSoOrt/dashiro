@@ -1,15 +1,12 @@
 import PropTypes from 'prop-types';
 import { useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
 
 // material-ui
-import { Box, Link, TablePagination, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from '@mui/material';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
 
 // third-party
-import NumberFormat from 'react-number-format';
 
 // project import
-import Dot from 'components/@extended/Dot';
 import { TableFooter } from '../../../../node_modules/@mui/material/index';
 
 function descendingComparator(a, b, orderBy) {
@@ -44,7 +41,7 @@ const headCells = [
     {
         id: 'date',
         align: 'left',
-        disablePadding: false,
+        disablePadding: true,
         label: 'Date'
     },
     {
@@ -56,37 +53,37 @@ const headCells = [
     {
         id: 'dateValue',
         align: 'left',
-        disablePadding: false,
+        disablePadding: true,
         label: 'Date Value'
     },
     {
         id: 'product',
         align: 'left',
-        disablePadding: false,
+        disablePadding: true,
         label: 'Product'
     },
     {
         id: 'description',
         align: 'left',
-        disablePadding: false,
+        disablePadding: true,
         label: 'Description'
     },
     {
         id: 'tax',
         align: 'right',
-        disablePadding: false,
+        disablePadding: true,
         label: 'Tax'
     },
     {
         id: 'change',
         align: 'right',
-        disablePadding: false,
+        disablePadding: true,
         label: 'Change'
     },
     {
         id: 'balance',
         align: 'right',
-        disablePadding: false,
+        disablePadding: true,
         label: 'Balance'
     }
 ];
@@ -121,13 +118,16 @@ OrderTableHead.propTypes = {
 
 export default function ImportedFileVisualization(props) {
     const [order] = useState('desc');
+
     const [orderBy] = useState('date');
+    
     const [selected] = useState([]);
 
     const [rows] = useState(props.rows);
 
     const [page, setPage] = useState(0);
-    const [rowsPerPage, setRowsPerPage] = useState(5);
+    
+    const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
 
@@ -142,27 +142,8 @@ export default function ImportedFileVisualization(props) {
 
     return (
         <Box>
-            <TableContainer
-                sx={{
-                    width: '100%',
-                    overflowX: 'auto',
-                    position: 'relative',
-                    display: 'block',
-                    maxWidth: '100%'
-                    //'& td, & th': { whiteSpace: 'nowrap' }
-                }}
-            >
-                <Table
-                    aria-labelledby="tableTitle"
-                    sx={{
-                        '& .MuiTableCell-root:first-child': {
-                            pl: 2
-                        },
-                        '& .MuiTableCell-root:last-child': {
-                            pr: 3
-                        }
-                    }}
-                >
+            <TableContainer>
+                <Table aria-labelledby="tableTitle">
                     <OrderTableHead order={order} orderBy={orderBy} />
                     <TableBody>
                         {stableSort(
@@ -176,7 +157,6 @@ export default function ImportedFileVisualization(props) {
                                 <TableRow
                                     hover
                                     role="checkbox"
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                     aria-checked={isItemSelected}
                                     tabIndex={-1}
                                     key={row.trackingNo}
@@ -190,35 +170,28 @@ export default function ImportedFileVisualization(props) {
                                     <TableCell align="right">{row.exchangeTax}</TableCell>
                                     <TableCell align="right">{row.change.value}</TableCell>
                                     <TableCell align="right">{row.balance.value}</TableCell>
-                                    {/* <TableCell align="right">
-                                        <NumberFormat value={row.protein} displayType="text" thousandSeparator prefix="$" />
-                                    </TableCell> */}
                                 </TableRow>
                             );
                         })}
                     </TableBody>
-                    <TableFooter>
-                        <TableRow>
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                                colSpan={3}
-                                count={rows.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                SelectProps={{
-                                    inputProps: {
-                                        'aria-label': 'rows per page'
-                                    },
-                                    native: true
-                                }}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                // ActionsComponent={TablePaginationActions}
-                            />
-                        </TableRow>
-                    </TableFooter>
                 </Table>
             </TableContainer>
+            <TablePagination
+                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                colSpan={3}
+                component="div"
+                count={rows.length}
+                rowsPerPage={rowsPerPage}
+                page={page}
+                SelectProps={{
+                    inputProps: {
+                        'aria-label': 'rows per page'
+                    },
+                    native: true
+                }}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+            />
         </Box>
     );
 }

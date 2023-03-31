@@ -25,12 +25,10 @@ class FileParser {
         return values;
     };
 
-    async parse(file) {
+    parse(file) {
         const lines = file.trim().split('\n');
 
         const parsedLines = [];
-
-        console.log(lines.length);
 
         for (let i = 1; i < lines.length; i++) {
             const line = lines[i];
@@ -56,7 +54,9 @@ class FileParser {
                 idOrdem: values[11]
             };
 
-            parsedLines.push(parsedLine);
+            if (parsedLine.date || parsedLine.hour || parsedLine.dateValue || parsedLine.product || parsedLine.isin || parsedLine.description) {
+                parsedLines.push(parsedLine);
+            }
         }
 
         return parsedLines;
