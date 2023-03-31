@@ -57,6 +57,8 @@ const ImportFilePage = () => {
 
                 const parsedRowsAux = fileParser.parse(selectedFileContent);
 
+                console.log(parsedRowsAux);
+
                 setParsedRows(parsedRowsAux);
 
                 setActiveStep((prevActiveStep) => prevActiveStep + 1);

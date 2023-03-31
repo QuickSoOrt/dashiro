@@ -3,6 +3,8 @@ import { lazy } from 'react';
 // project import
 import Loadable from 'components/Loadable';
 import MainLayout from 'layout/MainLayout';
+import DividendsPage from 'pages/reports/dividends/index';
+import TransactionsPage from 'pages/reports/transactions/index';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -11,7 +13,7 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/SamplePage')));
 
 // render - tools
-const ImportFilePage = Loadable(lazy(() => import('pages/tools/ImportFilePage/index')));
+const ImportFilePage = Loadable(lazy(() => import('pages/tools/import-file-page/index')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -33,11 +35,19 @@ const MainRoutes = {
             ]
         },
         {
-            path: 'sample-page',
+            path: '/documentation',
             element: <SamplePage />
         },
         {
-            path: 'tools/import-file-page',
+            path: 'reports/dividends',
+            element: <DividendsPage />
+        },
+        {
+            path: 'reports/transactions',
+            element: <TransactionsPage />
+        },
+        {
+            path: 'tools/import-file',
             element: <ImportFilePage />
         }
     ]

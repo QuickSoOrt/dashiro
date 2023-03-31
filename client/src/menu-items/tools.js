@@ -17,7 +17,7 @@ const tools = {
             id: 'import-file',
             title: 'Import File',
             type: 'item',
-            url: '/tools/import-file-page',
+            url: '/tools/import-file',
             icon: icons.UploadOutlined
         }
     ]

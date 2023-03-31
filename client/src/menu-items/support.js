@@ -17,7 +17,7 @@ const support = {
             id: 'documentation',
             title: 'Documentation',
             type: 'item',
-            url: '/sample-page',
+            url: '/documentation',
             icon: icons.FileTextOutlined
         }
     ]
