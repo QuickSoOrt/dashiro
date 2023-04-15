@@ -6584,20 +6584,29 @@ const rows = [
     }
 ];
 
+// const columns = [
+//     { field: 'date', headerName: 'DATE', flex: 0.4 },
+//     { field: 'dateValue', headerName: 'DATE VALUE', flex: 0.4 },
+//     { field: 'product', headerName: 'PRODUCT', flex: 2 },
+//     { field: 'isin', headerName: 'ISIN', flex: 0.4 },
+//     { field: 'exchangeTax', headerName: 'TAX', flex: 0.4 },
+//     { field: 'change', headerName: 'CHANGE', flex: 0.4, valueFormatter: (change) => change.value.value },
+//     { field: 'balance', headerName: 'BALANCE', flex: 0.4, valueFormatter: (balance) => balance.value.value },
+// ];
+
 const columns = [
-    { field: 'date', headerName: 'DATE', flex: 1 },
-    { field: 'dateValue', headerName: 'DATE VALUE', flex: 1 },
-    { field: 'product', headerName: 'PRODUCT', flex: 1 },
-    { field: 'isin', headerName: 'ISIN', flex: 1 },
-    { field: 'description', headerName: 'DESCRIPTION', flex: 1 },
-    { field: 'exchangeTax', headerName: 'TAX', flex: 1 },
-    { field: 'change.value', headerName: 'CHANGE', flex: 1 },
-    { field: 'balance.value', headerName: 'BALANCE', flex: 1 },
+    { field: 'date', headerName: 'DATE' },
+    { field: 'dateValue', headerName: 'DATE VALUE' },
+    { field: 'product', headerName: 'PRODUCT' },
+    { field: 'isin', headerName: 'ISIN' },
+    { field: 'exchangeTax', headerName: 'TAX' },
+    { field: 'change', headerName: 'CHANGE', valueFormatter: (change) => change.value.value },
+    { field: 'balance', headerName: 'BALANCE', valueFormatter: (balance) => balance.value.value },
 ];
 
 const DividendsPage = () => (
     <MainCard>
-        <Box sx={{ height: 400, width: '100%' }}>
+        <Box sx={{ height: '70vh' }}>
             <DataGrid
                 rows={rows}
                 columns={columns}
@@ -6608,7 +6617,7 @@ const DividendsPage = () => (
                         }
                     }
                 }}
-                pageSizeOptions={[5]}
+                pageSizeOptions={[5, 10, 25]}
                 checkboxSelection
                 disableRowSelectionOnClick
             />
