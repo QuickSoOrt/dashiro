@@ -1,11 +1,16 @@
+import PropTypes from 'prop-types';
+import { useEffect, useState } from 'react';
+
 // material-ui
-import { Typography, Box } from '@mui/material';
+import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, IconButton } from '@mui/material';
+
+// third-party
+import { SearchOutlined } from '@ant-design/icons';
 
 // project import
+import { FormControl, Grid, InputLabel, MenuItem, Select, TableFooter } from '../../../../node_modules/@mui/material/index';
 import MainCard from 'components/MainCard';
-import { DataGrid } from '@mui/x-data-grid';
-
-// ==============================|| SAMPLE PAGE ||============================== //
+import AnalyticDividend from 'components/cards/statistics/dividends/AnalyticDividend';
 
 const rows = [
     {
@@ -6584,45 +6589,320 @@ const rows = [
     }
 ];
 
-// const columns = [
-//     { field: 'date', headerName: 'DATE', flex: 0.4 },
-//     { field: 'dateValue', headerName: 'DATE VALUE', flex: 0.4 },
-//     { field: 'product', headerName: 'PRODUCT', flex: 2 },
-//     { field: 'isin', headerName: 'ISIN', flex: 0.4 },
-//     { field: 'exchangeTax', headerName: 'TAX', flex: 0.4 },
-//     { field: 'change', headerName: 'CHANGE', flex: 0.4, valueFormatter: (change) => change.value.value },
-//     { field: 'balance', headerName: 'BALANCE', flex: 0.4, valueFormatter: (balance) => balance.value.value },
-// ];
+function descendingComparator(a, b, orderBy) {
+    if (b[orderBy] < a[orderBy]) {
+        return -1;
+    }
+    if (b[orderBy] > a[orderBy]) {
+        return 1;
+    }
+    return 0;
+}
 
-const columns = [
-    { field: 'date', headerName: 'DATE' },
-    { field: 'dateValue', headerName: 'DATE VALUE' },
-    { field: 'product', headerName: 'PRODUCT' },
-    { field: 'isin', headerName: 'ISIN' },
-    { field: 'exchangeTax', headerName: 'TAX' },
-    { field: 'change', headerName: 'CHANGE', valueFormatter: (change) => change.value.value },
-    { field: 'balance', headerName: 'BALANCE', valueFormatter: (balance) => balance.value.value },
+function getComparator(order, orderBy) {
+    return order === 'desc' ? (a, b) => descendingComparator(a, b, orderBy) : (a, b) => -descendingComparator(a, b, orderBy);
+}
+
+function stableSort(array, comparator) {
+    const stabilizedThis = array.map((el, index) => [el, index]);
+    stabilizedThis.sort((a, b) => {
+        const order = comparator(a[0], b[0]);
+        if (order !== 0) {
+            return order;
+        }
+        return a[1] - b[1];
+    });
+    return stabilizedThis.map((el) => el[0]);
+}
+
+// ==============================|| ORDER TABLE - HEADER CELL ||============================== //
+
+const headCells = [
+    {
+        id: 'date',
+        align: 'left',
+        disablePadding: true,
+        label: 'Date'
+    },
+    {
+        id: 'hour',
+        align: 'left',
+        disablePadding: true,
+        label: 'Hour'
+    },
+    {
+        id: 'product',
+        align: 'left',
+        disablePadding: true,
+        label: 'Product'
+    },
+    {
+        id: 'description',
+        align: 'left',
+        disablePadding: true,
+        label: 'Description'
+    },
+    {
+        id: 'change',
+        align: 'right',
+        disablePadding: true,
+        label: 'Change'
+    },
+    {
+        id: 'balance',
+        align: 'right',
+        disablePadding: true,
+        label: 'Balance'
+    }
 ];
 
-const DividendsPage = () => (
-    <MainCard>
-        <Box sx={{ height: '70vh' }}>
-            <DataGrid
-                rows={rows}
-                columns={columns}
-                initialState={{
-                    pagination: {
-                        paginationModel: {
-                            pageSize: 5
-                        }
-                    }
-                }}
-                pageSizeOptions={[5, 10, 25]}
-                checkboxSelection
-                disableRowSelectionOnClick
-            />
-        </Box>
-    </MainCard>
-);
+// ==============================|| ORDER TABLE - HEADER ||============================== //
 
-export default DividendsPage;
+function OrderTableHead({ order, orderBy }) {
+    return (
+        <TableHead>
+            <TableRow>
+                {headCells.map((headCell) => (
+                    <TableCell
+                        key={headCell.id}
+                        align={headCell.align}
+                        padding={headCell.disablePadding ? 'none' : 'normal'}
+                        sortDirection={orderBy === headCell.id ? order : false}
+                    >
+                        {headCell.label}
+                    </TableCell>
+                ))}
+            </TableRow>
+        </TableHead>
+    );
+}
+
+OrderTableHead.propTypes = {
+    order: PropTypes.string,
+    orderBy: PropTypes.string
+};
+
+// ==============================|| ORDER TABLE ||============================== //
+
+export default function DividendsPage(props) {
+    const [order] = useState('desc');
+
+    const [orderBy] = useState('date');
+
+    const [selected] = useState([]);
+
+    const [data, setData] = useState(() => {
+        if (rows) {
+            return rows.filter(r => r.description.toUpperCase().includes("DIVIDENDO"));
+        }
+        else {
+            return [];
+        }
+    });
+
+    const [currencies, setCurrencies] = useState(() => {
+        if (rows) {
+            return rows.map(r => r.change.currency).filter((value, index, self) => {
+                return self.indexOf(value) === index && value.length !== 0;
+            });
+        }
+        else {
+            return [];
+        }
+    });
+
+    const [totalDividendsReceivedPerCurrency, setTotalDividendsReceivedPerCurrency] = useState([]);
+
+    const [totalTaxesPaidPerCurrency, setTotalTaxesPaidPerCurrency] = useState([]);
+
+    const [page, setPage] = useState(0);
+
+    const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
+
+    useEffect(() => {
+        calculateTotalDividendsReceivedPerCurrency();
+        calculateTotalTaxesPaidPerCurrency();
+    }, []);
+
+    const calculateTotalTaxesPaidPerCurrency = () => {
+        let totals = {};
+
+        currencies.forEach((c) => {
+            totals[c] = 0;
+        });
+
+        if (data) {
+            data.filter(r => r.description.toUpperCase() === "IMPOSTO SOBRE DIVIDENDO").forEach((r) => {
+                if (r.change.value) {
+                    const number = parseFloat(r.change.value.replace(",", "."));
+                    if (isNaN(number)) {
+                        console.log(r.change.value);
+                    }
+                    else {
+                        totals[r.change.currency] += number;
+                    }
+                }
+            });
+        }
+
+        let totalsAux = [];
+
+        currencies.forEach((c) => {
+            totals[c] = Math.abs(totals[c]);
+            totalsAux.push({
+                currency: c,
+                total: totals[c],
+            });
+        });
+
+        setTotalTaxesPaidPerCurrency(totalsAux);
+    };
+
+    const calculateTotalDividendsReceivedPerCurrency = () => {
+        let totals = {};
+
+        currencies.forEach((c) => {
+            totals[c] = 0;
+        });
+
+        if (data) {
+            data.filter(r => r.description.toUpperCase() === "DIVIDENDO").forEach((r) => {
+                if (r.change.value) {
+                    const number = parseFloat(r.change.value.replace(",", "."));
+                    if (isNaN(number)) {
+                        console.log(r.change.value);
+                    }
+                    else {
+                        totals[r.change.currency] += number;
+                    }
+                }
+            });
+        }
+
+        let totalsAux = [];
+
+        currencies.forEach((c) => {
+            totals[c] = Math.abs(totals[c]);
+            totalsAux.push({
+                currency: c,
+                total: totals[c],
+            });
+        });
+
+        console.log(totalsAux);
+
+        setTotalDividendsReceivedPerCurrency(totalsAux);
+    };
+
+    const handleChangePage = (event, newPage) => {
+        setPage(newPage);
+    };
+
+    const handleChangeRowsPerPage = (event) => {
+        setRowsPerPage(parseInt(event.target.value, 10));
+        setPage(0);
+    };
+
+    return (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <Grid container rowSpacing={4.5} columnSpacing={2.75}>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <AnalyticDividend title="Total Dividends Received Per Currency" count={0} totals={totalDividendsReceivedPerCurrency} percentage={59.3} extra="35,000" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <AnalyticDividend title="Total Money Received Per Currency" count={0} totals={totalDividendsReceivedPerCurrency} percentage={70.5} extra="8,900" />
+                </Grid>
+                <Grid item xs={12} sm={6} md={4} lg={3}>
+                    <AnalyticDividend title="Total Taxes Paid Per Currency" count={0} totals={totalTaxesPaidPerCurrency} percentage={70.5} extra="8,900" />
+                </Grid>
+            </Grid>
+            <MainCard>
+                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+                    <Box sx={{ display: 'flex', gap: '20px' }}>
+                        <FormControl sx={{ minWidth: '100px' }}>
+                            <InputLabel id="product-select-label">Product</InputLabel>
+                            <Select
+                                labelId="product-select-label"
+                                label="Product"
+                            >
+                                <MenuItem value={10}>Ten</MenuItem>
+                                <MenuItem value={20}>Twenty</MenuItem>
+                                <MenuItem value={30}>Thirty</MenuItem>
+                            </Select>
+                        </FormControl>
+                        <FormControl sx={{ minWidth: '110px' }}>
+                            <InputLabel id="currency-select-label">Currency</InputLabel>
+                            <Select
+                                labelId="currency-select-label"
+                                label="Currency"
+                            >
+                                <MenuItem value={10}>Ten</MenuItem>
+                                <MenuItem value={20}>Twenty</MenuItem>
+                                <MenuItem value={30}>Thirty</MenuItem>
+                            </Select>
+                        </FormControl>
+                    </Box>
+                    <Box>
+                        <IconButton aria-label="search" size="large">
+                            <SearchOutlined />
+                        </IconButton>
+                    </Box>
+                </Box>
+            </MainCard>
+            <MainCard>
+                <Box>
+                    <TableContainer>
+                        <Table aria-labelledby="tableTitle">
+                            <OrderTableHead order={order} orderBy={orderBy} />
+                            <TableBody>
+                                {stableSort(
+                                    rowsPerPage > 0 ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows,
+                                    getComparator(order, orderBy)
+                                ).map((row, index) => {
+                                    const isItemSelected = isSelected(row.trackingNo);
+                                    const labelId = `enhanced-table-checkbox-${index}`;
+
+                                    return (
+                                        <TableRow
+                                            hover
+                                            role="checkbox"
+                                            aria-checked={isItemSelected}
+                                            tabIndex={-1}
+                                            key={row.trackingNo}
+                                            selected={isItemSelected}
+                                        >
+                                            <TableCell align="left">{row.date}</TableCell>
+                                            <TableCell align="left">{row.hour}</TableCell>
+                                            <TableCell align="left">{row.product}</TableCell>
+                                            <TableCell align="left">{row.description}</TableCell>
+                                            <TableCell align="right">{row.change.value}</TableCell>
+                                            <TableCell align="right">{row.balance.value}</TableCell>
+                                        </TableRow>
+                                    );
+                                })}
+                            </TableBody>
+                        </Table>
+                    </TableContainer>
+                    <TablePagination
+                        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                        colSpan={3}
+                        component="div"
+                        count={rows.length}
+                        rowsPerPage={rowsPerPage}
+                        page={page}
+                        SelectProps={{
+                            inputProps: {
+                                'aria-label': 'rows per page'
+                            },
+                            native: true
+                        }}
+                        onPageChange={handleChangePage}
+                        onRowsPerPageChange={handleChangeRowsPerPage}
+                    />
+                </Box>
+            </MainCard>
+        </Box>
+    );
+}
