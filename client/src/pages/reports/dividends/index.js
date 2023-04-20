@@ -6693,20 +6693,20 @@ export default function DividendsPage(props) {
 
     const [data, setData] = useState(() => {
         if (rows) {
-            return rows.filter(r => r.description.toUpperCase().includes("DIVIDENDO"));
-        }
-        else {
+            return rows.filter((r) => r.description.toUpperCase().includes('DIVIDENDO'));
+        } else {
             return [];
         }
     });
 
     const [currencies, setCurrencies] = useState(() => {
         if (rows) {
-            return rows.map(r => r.change.currency).filter((value, index, self) => {
-                return self.indexOf(value) === index && value.length !== 0;
-            });
-        }
-        else {
+            return rows
+                .map((r) => r.change.currency)
+                .filter((value, index, self) => {
+                    return self.indexOf(value) === index && value.length !== 0;
+                });
+        } else {
             return [];
         }
     });
@@ -6715,6 +6715,8 @@ export default function DividendsPage(props) {
 
     const [totalTaxesPaidPerCurrency, setTotalTaxesPaidPerCurrency] = useState([]);
 
+    const [totalMoneyReceivedPerCurrency, setTotalMoneyReceivedPerCurrency] = useState([]);
+
     const [page, setPage] = useState(0);
 
     const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -6722,9 +6724,22 @@ export default function DividendsPage(props) {
     const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
 
     useEffect(() => {
-        calculateTotalDividendsReceivedPerCurrency();
-        calculateTotalTaxesPaidPerCurrency();
+        calculateTotals();
     }, []);
+
+    const calculateTotals = () => {
+        const totalTaxesPaidPerCurrencyAux = calculateTotalTaxesPaidPerCurrency();
+        setTotalTaxesPaidPerCurrency(totalTaxesPaidPerCurrencyAux);
+
+        const totalDividendsReceivedPerCurrencyAux = calculateTotalDividendsReceivedPerCurrency();
+        setTotalDividendsReceivedPerCurrency(totalDividendsReceivedPerCurrencyAux);
+
+        const totalMoneyReceivedPerCurrencyAux = calculateTotalMoneyReceivedPerCurrency(
+            totalDividendsReceivedPerCurrencyAux,
+            totalTaxesPaidPerCurrencyAux
+        );
+        setTotalMoneyReceivedPerCurrency(totalMoneyReceivedPerCurrencyAux);
+    };
 
     const calculateTotalTaxesPaidPerCurrency = () => {
         let totals = {};
@@ -6734,13 +6749,12 @@ export default function DividendsPage(props) {
         });
 
         if (data) {
-            data.filter(r => r.description.toUpperCase() === "IMPOSTO SOBRE DIVIDENDO").forEach((r) => {
+            data.filter((r) => r.description.toUpperCase() === 'IMPOSTO SOBRE DIVIDENDO').forEach((r) => {
                 if (r.change.value) {
-                    const number = parseFloat(r.change.value.replace(",", "."));
+                    const number = parseFloat(r.change.value.replace(',', '.'));
                     if (isNaN(number)) {
                         console.log(r.change.value);
-                    }
-                    else {
+                    } else {
                         totals[r.change.currency] += number;
                     }
                 }
@@ -6753,11 +6767,11 @@ export default function DividendsPage(props) {
             totals[c] = Math.abs(totals[c]);
             totalsAux.push({
                 currency: c,
-                total: totals[c],
+                total: totals[c]
             });
         });
 
-        setTotalTaxesPaidPerCurrency(totalsAux);
+        return totalsAux;
     };
 
     const calculateTotalDividendsReceivedPerCurrency = () => {
@@ -6768,13 +6782,12 @@ export default function DividendsPage(props) {
         });
 
         if (data) {
-            data.filter(r => r.description.toUpperCase() === "DIVIDENDO").forEach((r) => {
+            data.filter((r) => r.description.toUpperCase() === 'DIVIDENDO').forEach((r) => {
                 if (r.change.value) {
-                    const number = parseFloat(r.change.value.replace(",", "."));
+                    const number = parseFloat(r.change.value.replace(',', '.'));
                     if (isNaN(number)) {
                         console.log(r.change.value);
-                    }
-                    else {
+                    } else {
                         totals[r.change.currency] += number;
                     }
                 }
@@ -6787,13 +6800,36 @@ export default function DividendsPage(props) {
             totals[c] = Math.abs(totals[c]);
             totalsAux.push({
                 currency: c,
-                total: totals[c],
+                total: totals[c]
             });
         });
 
-        console.log(totalsAux);
+        return totalsAux;
+    };
 
-        setTotalDividendsReceivedPerCurrency(totalsAux);
+    const calculateTotalMoneyReceivedPerCurrency = (totalDividendsReceivedPerCurrencyAux, totalTaxesPaidPerCurrencyAux) => {
+        let totals = {};
+
+        currencies.forEach((c) => {
+            var a = totalDividendsReceivedPerCurrencyAux?.find((t) => t.currency === c).total;
+
+            var b = totalTaxesPaidPerCurrencyAux?.find((t) => t.currency === c)?.total;
+
+            totals[c] = a - b;
+        });
+
+        let totalsAux = [];
+
+        currencies.forEach((c) => {
+            totalsAux.push({
+                currency: c,
+                total: totals[c]
+            });
+        });
+
+        return totalsAux;
+
+        return [];
     };
 
     const handleChangePage = (event, newPage) => {
@@ -6809,13 +6845,31 @@ export default function DividendsPage(props) {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
-                    <AnalyticDividend title="Total Dividends Received Per Currency" count={0} totals={totalDividendsReceivedPerCurrency} percentage={59.3} extra="35,000" />
+                    <AnalyticDividend
+                        title="Total Dividends Received Per Currency"
+                        count={0}
+                        totals={totalDividendsReceivedPerCurrency}
+                        percentage={59.3}
+                        extra="35,000"
+                    />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
-                    <AnalyticDividend title="Total Money Received Per Currency" count={0} totals={totalDividendsReceivedPerCurrency} percentage={70.5} extra="8,900" />
+                    <AnalyticDividend
+                        title="Total Money Received Per Currency"
+                        count={0}
+                        totals={totalMoneyReceivedPerCurrency}
+                        percentage={70.5}
+                        extra="8,900"
+                    />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4} lg={3}>
-                    <AnalyticDividend title="Total Taxes Paid Per Currency" count={0} totals={totalTaxesPaidPerCurrency} percentage={70.5} extra="8,900" />
+                    <AnalyticDividend
+                        title="Total Taxes Paid Per Currency"
+                        count={0}
+                        totals={totalTaxesPaidPerCurrency}
+                        percentage={70.5}
+                        extra="8,900"
+                    />
                 </Grid>
             </Grid>
             <MainCard>
@@ -6823,10 +6877,7 @@ export default function DividendsPage(props) {
                     <Box sx={{ display: 'flex', gap: '20px' }}>
                         <FormControl sx={{ minWidth: '100px' }}>
                             <InputLabel id="product-select-label">Product</InputLabel>
-                            <Select
-                                labelId="product-select-label"
-                                label="Product"
-                            >
+                            <Select labelId="product-select-label" label="Product">
                                 <MenuItem value={10}>Ten</MenuItem>
                                 <MenuItem value={20}>Twenty</MenuItem>
                                 <MenuItem value={30}>Thirty</MenuItem>
@@ -6834,10 +6885,7 @@ export default function DividendsPage(props) {
                         </FormControl>
                         <FormControl sx={{ minWidth: '110px' }}>
                             <InputLabel id="currency-select-label">Currency</InputLabel>
-                            <Select
-                                labelId="currency-select-label"
-                                label="Currency"
-                            >
+                            <Select labelId="currency-select-label" label="Currency">
                                 <MenuItem value={10}>Ten</MenuItem>
                                 <MenuItem value={20}>Twenty</MenuItem>
                                 <MenuItem value={30}>Thirty</MenuItem>
