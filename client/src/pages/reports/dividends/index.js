@@ -6699,6 +6699,14 @@ export default function DividendsPage(props) {
         }
     });
 
+    const [filteredData, setFilteredData] = useState(() => {
+        if (rows) {
+            return rows.filter((r) => r.description.toUpperCase().includes('DIVIDENDO'));
+        } else {
+            return [];
+        }
+    });
+
     const [currencies, setCurrencies] = useState(() => {
         if (rows) {
             return rows
@@ -6725,7 +6733,7 @@ export default function DividendsPage(props) {
 
     useEffect(() => {
         calculateTotals();
-    }, []);
+    }, [filteredData]);
 
     const calculateTotals = () => {
         const totalTaxesPaidPerCurrencyAux = calculateTotalTaxesPaidPerCurrency();
@@ -6748,8 +6756,8 @@ export default function DividendsPage(props) {
             totals[c] = 0;
         });
 
-        if (data) {
-            data.filter((r) => r.description.toUpperCase() === 'IMPOSTO SOBRE DIVIDENDO').forEach((r) => {
+        if (filteredData) {
+            filteredData.filter((r) => r.description.toUpperCase() === 'IMPOSTO SOBRE DIVIDENDO').forEach((r) => {
                 if (r.change.value) {
                     const number = parseFloat(r.change.value.replace(',', '.'));
                     if (isNaN(number)) {
@@ -6781,8 +6789,8 @@ export default function DividendsPage(props) {
             totals[c] = 0;
         });
 
-        if (data) {
-            data.filter((r) => r.description.toUpperCase() === 'DIVIDENDO').forEach((r) => {
+        if (filteredData) {
+            filteredData.filter((r) => r.description.toUpperCase() === 'DIVIDENDO').forEach((r) => {
                 if (r.change.value) {
                     const number = parseFloat(r.change.value.replace(',', '.'));
                     if (isNaN(number)) {
@@ -6841,6 +6849,12 @@ export default function DividendsPage(props) {
         setPage(0);
     };
 
+    const search = () => {
+        const filteredDataAux = data.filter((r) => r.product === 'ALTRIA GROUP INC.');
+
+        setFilteredData(filteredDataAux);
+    }
+
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
@@ -6893,7 +6907,7 @@ export default function DividendsPage(props) {
                         </FormControl>
                     </Box>
                     <Box>
-                        <IconButton aria-label="search" size="large">
+                        <IconButton aria-label="search" size="large" onClick={search}>
                             <SearchOutlined />
                         </IconButton>
                     </Box>
@@ -6906,7 +6920,7 @@ export default function DividendsPage(props) {
                             <OrderTableHead order={order} orderBy={orderBy} />
                             <TableBody>
                                 {stableSort(
-                                    rowsPerPage > 0 ? data.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows,
+                                    rowsPerPage > 0 ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows,
                                     getComparator(order, orderBy)
                                 ).map((row, index) => {
                                     const isItemSelected = isSelected(row.trackingNo);
