@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 
 // material-ui
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, IconButton } from '@mui/material';
+import { DatePicker } from '@mui/x-date-pickers/DatePicker';
 
 // third-party
 import { SearchOutlined } from '@ant-design/icons';
@@ -6687,13 +6688,22 @@ OrderTableHead.propTypes = {
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
 
-const MenuProps = {
-  PaperProps: {
-    style: {
-      maxHeight: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
-      width: 300,
-    },
-  },
+const ProductsMenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
+            width: 300
+        }
+    }
+};
+
+const CurrenciesMenuProps = {
+    PaperProps: {
+        style: {
+            maxHeight: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
+            width: 110
+        }
+    }
 };
 
 export default function DividendsPage(props) {
@@ -6754,6 +6764,12 @@ export default function DividendsPage(props) {
     const [rowsPerPage, setRowsPerPage] = useState(10);
 
     const [selectedProducts, setSelectedProducts] = useState([]);
+
+    const [selectedCurrencies, setSelectedCurrencies] = useState([]);
+
+    const [startDate, setStartDate] = useState(null);
+
+    const [endDate, setEndDate] = useState(null);
 
     const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
 
@@ -6881,11 +6897,35 @@ export default function DividendsPage(props) {
         setSelectedProducts(typeof value === 'string' ? value.split(',') : event.target.value);
     };
 
+    const handleSelectedCurrencyChange = (event) => {
+        setSelectedCurrencies(typeof value === 'string' ? value.split(',') : event.target.value);
+    };
+
+    const handleStartDateChange = (value) => {
+        setStartDate(value);
+    };
+
+    const handleEndDateChange = (value) => {
+        setEndDate(value);
+    };
+
     const search = () => {
         let filteredDataAux = data;
-        
+
         if (selectedProducts && selectedProducts.length > 0) {
-            filteredDataAux = data.filter((r) => selectedProducts.includes(r.product));
+            filteredDataAux = filteredDataAux.filter((r) => selectedProducts.includes(r.product));
+        }
+
+        if (selectedCurrencies && selectedCurrencies.length > 0) {
+            filteredDataAux = filteredDataAux.filter((r) => selectedCurrencies.includes(r.change.currency));
+        }
+
+        if (startDate) {
+            filteredDataAux = filteredDataAux.filter((r) => new Date(r.date) >= startDate.toDate());
+        }
+
+        if (endDate) {
+            filteredDataAux = filteredDataAux.filter((r) => new Date(r.date) <= endDate.toDate());
         }
 
         setFilteredData(filteredDataAux);
@@ -6932,7 +6972,7 @@ export default function DividendsPage(props) {
                                 value={selectedProducts}
                                 label="Product"
                                 multiple
-                                MenuProps={MenuProps}
+                                MenuProps={ProductsMenuProps}
                                 onChange={handleSelectedProductChange}
                             >
                                 {products.map((element, index) => {
@@ -6946,12 +6986,25 @@ export default function DividendsPage(props) {
                         </FormControl>
                         <FormControl sx={{ minWidth: '110px' }}>
                             <InputLabel id="currency-select-label">Currency</InputLabel>
-                            <Select labelId="currency-select-label" label="Currency">
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+                            <Select
+                                labelId="currency-select-label"
+                                value={selectedCurrencies}
+                                label="Currency"
+                                multiple
+                                MenuProps={CurrenciesMenuProps}
+                                onChange={handleSelectedCurrencyChange}
+                            >
+                                {currencies.map((element, index) => {
+                                    return (
+                                        <MenuItem value={element} key={index}>
+                                            {element}
+                                        </MenuItem>
+                                    );
+                                })}
                             </Select>
                         </FormControl>
+                        <DatePicker label="Start Date" value={startDate} onChange={handleStartDateChange}></DatePicker>
+                        <DatePicker label="End Date" value={endDate} onChange={handleEndDateChange}></DatePicker>
                     </Box>
                     <Box>
                         <IconButton aria-label="search" size="large" onClick={search}>
