@@ -6684,6 +6684,18 @@ OrderTableHead.propTypes = {
 
 // ==============================|| ORDER TABLE ||============================== //
 
+const ITEM_HEIGHT = 48;
+const ITEM_PADDING_TOP = 8;
+
+const MenuProps = {
+  PaperProps: {
+    style: {
+      maxHeight: ITEM_HEIGHT * 7 + ITEM_PADDING_TOP,
+      width: 300,
+    },
+  },
+};
+
 export default function DividendsPage(props) {
     const [order] = useState('desc');
 
@@ -6719,6 +6731,18 @@ export default function DividendsPage(props) {
         }
     });
 
+    const [products, setProducts] = useState(() => {
+        if (rows) {
+            return rows
+                .map((r) => r.product)
+                .filter((value, index, self) => {
+                    return self.indexOf(value) === index && value.length !== 0;
+                });
+        } else {
+            return [];
+        }
+    });
+
     const [totalDividendsReceivedPerCurrency, setTotalDividendsReceivedPerCurrency] = useState([]);
 
     const [totalTaxesPaidPerCurrency, setTotalTaxesPaidPerCurrency] = useState([]);
@@ -6728,6 +6752,8 @@ export default function DividendsPage(props) {
     const [page, setPage] = useState(0);
 
     const [rowsPerPage, setRowsPerPage] = useState(10);
+
+    const [selectedProducts, setSelectedProducts] = useState([]);
 
     const isSelected = (trackingNo) => selected.indexOf(trackingNo) !== -1;
 
@@ -6757,16 +6783,18 @@ export default function DividendsPage(props) {
         });
 
         if (filteredData) {
-            filteredData.filter((r) => r.description.toUpperCase() === 'IMPOSTO SOBRE DIVIDENDO').forEach((r) => {
-                if (r.change.value) {
-                    const number = parseFloat(r.change.value.replace(',', '.'));
-                    if (isNaN(number)) {
-                        console.log(r.change.value);
-                    } else {
-                        totals[r.change.currency] += number;
+            filteredData
+                .filter((r) => r.description.toUpperCase() === 'IMPOSTO SOBRE DIVIDENDO')
+                .forEach((r) => {
+                    if (r.change.value) {
+                        const number = parseFloat(r.change.value.replace(',', '.'));
+                        if (isNaN(number)) {
+                            console.log(r.change.value);
+                        } else {
+                            totals[r.change.currency] += number;
+                        }
                     }
-                }
-            });
+                });
         }
 
         let totalsAux = [];
@@ -6790,16 +6818,18 @@ export default function DividendsPage(props) {
         });
 
         if (filteredData) {
-            filteredData.filter((r) => r.description.toUpperCase() === 'DIVIDENDO').forEach((r) => {
-                if (r.change.value) {
-                    const number = parseFloat(r.change.value.replace(',', '.'));
-                    if (isNaN(number)) {
-                        console.log(r.change.value);
-                    } else {
-                        totals[r.change.currency] += number;
+            filteredData
+                .filter((r) => r.description.toUpperCase() === 'DIVIDENDO')
+                .forEach((r) => {
+                    if (r.change.value) {
+                        const number = parseFloat(r.change.value.replace(',', '.'));
+                        if (isNaN(number)) {
+                            console.log(r.change.value);
+                        } else {
+                            totals[r.change.currency] += number;
+                        }
                     }
-                }
-            });
+                });
         }
 
         let totalsAux = [];
@@ -6836,8 +6866,6 @@ export default function DividendsPage(props) {
         });
 
         return totalsAux;
-
-        return [];
     };
 
     const handleChangePage = (event, newPage) => {
@@ -6849,11 +6877,19 @@ export default function DividendsPage(props) {
         setPage(0);
     };
 
+    const handleSelectedProductChange = (event) => {
+        setSelectedProducts(typeof value === 'string' ? value.split(',') : event.target.value);
+    };
+
     const search = () => {
-        const filteredDataAux = data.filter((r) => r.product === 'ALTRIA GROUP INC.');
+        let filteredDataAux = data;
+        
+        if (selectedProducts && selectedProducts.length > 0) {
+            filteredDataAux = data.filter((r) => selectedProducts.includes(r.product));
+        }
 
         setFilteredData(filteredDataAux);
-    }
+    };
 
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -6889,12 +6925,23 @@ export default function DividendsPage(props) {
             <MainCard>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                     <Box sx={{ display: 'flex', gap: '20px' }}>
-                        <FormControl sx={{ minWidth: '100px' }}>
+                        <FormControl sx={{ width: '300px' }}>
                             <InputLabel id="product-select-label">Product</InputLabel>
-                            <Select labelId="product-select-label" label="Product">
-                                <MenuItem value={10}>Ten</MenuItem>
-                                <MenuItem value={20}>Twenty</MenuItem>
-                                <MenuItem value={30}>Thirty</MenuItem>
+                            <Select
+                                labelId="product-select-label"
+                                value={selectedProducts}
+                                label="Product"
+                                multiple
+                                MenuProps={MenuProps}
+                                onChange={handleSelectedProductChange}
+                            >
+                                {products.map((element, index) => {
+                                    return (
+                                        <MenuItem value={element} key={index}>
+                                            {element}
+                                        </MenuItem>
+                                    );
+                                })}
                             </Select>
                         </FormControl>
                         <FormControl sx={{ minWidth: '110px' }}>
