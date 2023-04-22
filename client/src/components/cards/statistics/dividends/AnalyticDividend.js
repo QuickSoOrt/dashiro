@@ -11,7 +11,7 @@ import { RiseOutlined, FallOutlined } from '@ant-design/icons';
 
 // ==============================|| STATISTICS - DIVIDEND CARD  ||============================== //
 
-const AnalyticDividend = ({ color, title, count, percentage, totals, isLoss, extra }) => (
+const AnalyticDividend = ({ title, totals }) => (
     <MainCard contentSX={{ p: 2.25 }}>
         <Stack spacing={0.5}>
             <Typography variant="h6" color="textSecondary">
@@ -25,7 +25,7 @@ const AnalyticDividend = ({ color, title, count, percentage, totals, isLoss, ext
                                 <Grid item>
                                     <Chip
                                         variant="combined"
-                                        color={color}
+                                        color='primary'
                                         label={element.currency}
                                         size="small"
                                     />
@@ -46,12 +46,7 @@ const AnalyticDividend = ({ color, title, count, percentage, totals, isLoss, ext
 
 AnalyticDividend.propTypes = {
     totals: PropTypes.array,
-    color: PropTypes.string,
     title: PropTypes.string,
-    count: PropTypes.string,
-    percentage: PropTypes.number,
-    isLoss: PropTypes.bool,
-    extra: PropTypes.oneOfType([PropTypes.node, PropTypes.string])
 };
 
 AnalyticDividend.defaultProps = {
