@@ -1,4 +1,4 @@
-class FileParser {
+class TransactionsFileParser {
     constructor() {}
 
     splitByCommas = (str) => {
@@ -38,20 +38,22 @@ class FileParser {
             const parsedLine = {
                 date: values[0],
                 hour: values[1],
-                dateValue: values[2],
-                product: values[3],
-                isin: values[4],
-                description: values[5],
-                exchangeTax: values[6],
-                change: {
-                    currency: values[7],
-                    value: values[8]
-                },
-                balance: {
-                    currency: values[9],
-                    value: values[10]
-                },
-                idOrdem: values[11]
+                product: values[2],
+                isin: values[3],
+                // dateValue: values[2],
+                // product: values[3],
+                // isin: values[4],
+                // description: values[5],
+                // exchangeTax: values[6],
+                // change: {
+                //     currency: values[7],
+                //     value: values[8]
+                // },
+                // balance: {
+                //     currency: values[9],
+                //     value: values[10]
+                // },
+                // idOrdem: values[11]
             };
 
             if (parsedLine.date || parsedLine.hour || parsedLine.dateValue || parsedLine.product || parsedLine.isin || parsedLine.description) {
@@ -63,4 +65,4 @@ class FileParser {
     }
 }
 
-export default FileParser;
+export default TransactionsFileParser;

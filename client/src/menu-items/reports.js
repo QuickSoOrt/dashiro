@@ -26,6 +26,13 @@ const reports = {
             type: 'item',
             url: '/reports/transactions',
             icon: icons.DollarOutlined
+        },
+        {
+            id: 'deposits',
+            title: 'Deposits',
+            type: 'item',
+            url: '/reports/deposits',
+            icon: icons.DollarOutlined
         }
     ]
 };

@@ -11,7 +11,7 @@ import { SearchOutlined } from '@ant-design/icons';
 // project import
 import { FormControl, Grid, InputLabel, MenuItem, Select, TableFooter } from '../../../../node_modules/@mui/material/index';
 import MainCard from 'components/MainCard';
-import AnalyticDividend from 'components/cards/statistics/dividends/AnalyticDividend';
+import AnalyticPerCurrency from 'components/cards/statistics/AnalyticPerCurrency';
 import DateParser from 'utils/tools/date-parser';
 import currencySymbols from 'data/currency-symbols';
 import mockData from 'data/mock-data';
@@ -363,19 +363,19 @@ export default function DividendsPage(props) {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
                 <Grid item xs={12} sm={6} md={4} lg={4}>
-                    <AnalyticDividend
+                    <AnalyticPerCurrency
                         title="Total Dividends Received Per Currency"
                         totals={totalDividendsReceivedPerCurrency}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4} lg={4}>
-                    <AnalyticDividend
+                    <AnalyticPerCurrency
                         title="Total Money Received Per Currency"
                         totals={totalMoneyReceivedPerCurrency}
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={4} lg={4}>
-                    <AnalyticDividend
+                    <AnalyticPerCurrency
                         title="Total Taxes Paid Per Currency"
                         totals={totalTaxesPaidPerCurrency}
                     />
@@ -384,13 +384,13 @@ export default function DividendsPage(props) {
             <MainCard>
                 <Grid container rowSpacing={4.5} columnSpacing={2.75}>
                     <Grid item xs={12} sm={6} md={2} lg={2}>
-                        <DatePicker sx={{width: '100%'}} label="Start Date" value={startDate} onChange={handleStartDateChange}></DatePicker>
+                        <DatePicker format="DD-MM-YYYY" sx={{ width: '100%' }} label="Start Date" value={startDate} onChange={handleStartDateChange}></DatePicker>
                     </Grid>
                     <Grid item xs={12} sm={6} md={2} lg={2}>
-                        <DatePicker sx={{width: '100%'}} label="End Date" value={endDate} onChange={handleEndDateChange}></DatePicker>
+                        <DatePicker format="DD-MM-YYYY" sx={{ width: '100%' }} label="End Date" value={endDate} onChange={handleEndDateChange}></DatePicker>
                     </Grid>
                     <Grid item xs={12} sm={6} md={4} lg={4}>
-                        <FormControl sx={{width: '100%'}}>
+                        <FormControl sx={{ width: '100%' }}>
                             <InputLabel id="product-select-label">Product</InputLabel>
                             <Select
                                 labelId="product-select-label"
@@ -411,7 +411,7 @@ export default function DividendsPage(props) {
                         </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6} md={2} lg={2}>
-                        <FormControl sx={{width: '100%'}}>
+                        <FormControl sx={{ width: '100%' }}>
                             <InputLabel id="currency-select-label">Currency</InputLabel>
                             <Select
                                 labelId="currency-select-label"
@@ -432,7 +432,7 @@ export default function DividendsPage(props) {
                         </FormControl>
                     </Grid>
                     <Grid item xs={12} sm={6} md={2} lg={2}>
-                        <IconButton sx={{float: 'right'}} aria-label="search" size="large" onClick={search}>
+                        <IconButton sx={{ float: 'right' }} aria-label="search" size="large" onClick={search}>
                             <SearchOutlined />
                         </IconButton>
                     </Grid>
@@ -445,7 +445,7 @@ export default function DividendsPage(props) {
                             <OrderTableHead order={order} orderBy={orderBy} />
                             <TableBody>
                                 {stableSort(
-                                    rowsPerPage > 0 ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : rows,
+                                    rowsPerPage > 0 ? filteredData.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) : filteredData,
                                     getComparator(order, orderBy)
                                 ).map((row, index) => {
                                     const isItemSelected = isSelected(row.trackingNo);

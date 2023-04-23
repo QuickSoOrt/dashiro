@@ -5,6 +5,8 @@ import Loadable from 'components/Loadable';
 import MainLayout from 'layout/MainLayout';
 import DividendsPage from 'pages/reports/dividends/index';
 import TransactionsPage from 'pages/reports/transactions/index';
+import DepositsPage from 'pages/reports/deposits/index';
+import ImportTransactionsFilePage from 'pages/tools/import-transactions-file-page/index';
 
 // render - dashboard
 const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
@@ -13,7 +15,7 @@ const DashboardDefault = Loadable(lazy(() => import('pages/dashboard')));
 const SamplePage = Loadable(lazy(() => import('pages/extra-pages/SamplePage')));
 
 // render - tools
-const ImportFilePage = Loadable(lazy(() => import('pages/tools/import-file-page/index')));
+const ImportPortfolioSummaryFilePage = Loadable(lazy(() => import('pages/tools/import-portfolio-summary-file-page/index')));
 
 // ==============================|| MAIN ROUTING ||============================== //
 
@@ -35,7 +37,7 @@ const MainRoutes = {
             ]
         },
         {
-            path: '/documentation',
+            path: 'documentation',
             element: <SamplePage />
         },
         {
@@ -47,8 +49,16 @@ const MainRoutes = {
             element: <TransactionsPage />
         },
         {
-            path: 'tools/import-file',
-            element: <ImportFilePage />
+            path: 'reports/deposits',
+            element: <DepositsPage />
+        },
+        {
+            path: 'tools/import-portfolio-summary-file',
+            element: <ImportPortfolioSummaryFilePage />
+        },
+        {
+            path: 'tools/import-transactions-file',
+            element: <ImportTransactionsFilePage />
         }
     ]
 };

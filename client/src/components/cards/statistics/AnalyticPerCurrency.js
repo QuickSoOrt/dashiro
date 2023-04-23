@@ -8,10 +8,11 @@ import MainCard from 'components/MainCard';
 
 // assets
 import { RiseOutlined, FallOutlined } from '@ant-design/icons';
+import currencySymbols from 'data/currency-symbols';
 
-// ==============================|| STATISTICS - DIVIDEND CARD  ||============================== //
+// ==============================|| STATISTICS - ANALYTIC PER CURRENCY CARD  ||============================== //
 
-const AnalyticDividend = ({ title, totals }) => (
+const AnalyticPerCurrency = ({ title, totals }) => (
     <MainCard contentSX={{ p: 2.25 }}>
         <Stack spacing={0.5}>
             <Typography variant="h6" color="textSecondary">
@@ -32,7 +33,7 @@ const AnalyticDividend = ({ title, totals }) => (
                                 </Grid>
                                 <Grid item sx={{ ml: 1.25, pl: 1 }}>
                                     <Typography variant="h4" color="inherit">
-                                        {element.total}
+                                        {element.total + currencySymbols[element.currency]}
                                     </Typography>
                                 </Grid>
                             </Grid>
@@ -44,13 +45,13 @@ const AnalyticDividend = ({ title, totals }) => (
     </MainCard>
 );
 
-AnalyticDividend.propTypes = {
+AnalyticPerCurrency.propTypes = {
     totals: PropTypes.array,
     title: PropTypes.string,
 };
 
-AnalyticDividend.defaultProps = {
+AnalyticPerCurrency.defaultProps = {
     color: 'primary'
 };
 
-export default AnalyticDividend;
+export default AnalyticPerCurrency;

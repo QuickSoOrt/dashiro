@@ -58,12 +58,6 @@ const headCells = [
         label: 'Hour'
     },
     {
-        id: 'product',
-        align: 'left',
-        disablePadding: true,
-        label: 'Product'
-    },
-    {
         id: 'description',
         align: 'left',
         disablePadding: true,
@@ -74,7 +68,7 @@ const headCells = [
         align: 'right',
         disablePadding: true,
         label: 'Change'
-    },
+    }
 ];
 
 // ==============================|| ORDER TABLE - HEADER ||============================== //
@@ -126,7 +120,7 @@ const CurrenciesMenuProps = {
     }
 };
 
-export default function TransactionsPage(props) {
+export default function DepositsPage(props) {
     const [order] = useState('desc');
 
     const [orderBy] = useState('date');
@@ -137,7 +131,7 @@ export default function TransactionsPage(props) {
 
     const [data, setData] = useState(() => {
         if (rows) {
-            return rows.filter((r) => r.description.includes('Compra') || r.description.includes('Venda') || r.description.includes('Comissões de transação DEGIRO e/ou taxas de terceiros'));
+            return rows.filter((r) => r.description.includes('flatex Deposit'));
         } else {
             return [];
         }
@@ -145,7 +139,7 @@ export default function TransactionsPage(props) {
 
     const [filteredData, setFilteredData] = useState(() => {
         if (rows) {
-            return rows.filter((r) => r.description.includes('Compra') || r.description.includes('Venda') || r.description.includes('Comissões de transação DEGIRO e/ou taxas de terceiros'));
+            return rows.filter((r) => r.description.includes('flatex Deposit'));
         } else {
             return [];
         }
@@ -163,29 +157,11 @@ export default function TransactionsPage(props) {
         }
     });
 
-    const [products, setProducts] = useState(() => {
-        if (rows) {
-            return rows
-                .map((r) => r.product)
-                .filter((value, index, self) => {
-                    return self.indexOf(value) === index && value.length !== 0;
-                });
-        } else {
-            return [];
-        }
-    });
-
-    const [totalDividendsReceivedPerCurrency, setTotalDividendsReceivedPerCurrency] = useState([]);
-
-    const [totalComissionsPaidPerCurrency, setTotalComissionsPaidPerCurrency] = useState([]);
-
-    const [totalMoneyReceivedPerCurrency, setTotalMoneyReceivedPerCurrency] = useState([]);
+    const [totalMoneyDepositedPerCurrency, setTotalMoneyDepositedPerCurrency] = useState([]);
 
     const [page, setPage] = useState(0);
 
     const [rowsPerPage, setRowsPerPage] = useState(10);
-
-    const [selectedProducts, setSelectedProducts] = useState([]);
 
     const [selectedCurrencies, setSelectedCurrencies] = useState([]);
 
@@ -200,20 +176,11 @@ export default function TransactionsPage(props) {
     }, [filteredData]);
 
     const calculateTotals = () => {
-        const totalComissionsPaidPerCurrencyAux = calculateTotalComissionsPaidPerCurrency();
-        setTotalComissionsPaidPerCurrency(totalComissionsPaidPerCurrencyAux);
-
-        const totalDividendsReceivedPerCurrencyAux = calculateTotalDividendsReceivedPerCurrency();
-        setTotalDividendsReceivedPerCurrency(totalDividendsReceivedPerCurrencyAux);
-
-        // const totalMoneyReceivedPerCurrencyAux = calculateTotalMoneyReceivedPerCurrency(
-        //     totalDividendsReceivedPerCurrencyAux,
-        //     totalTaxesPaidPerCurrencyAux
-        // );
-        // setTotalMoneyReceivedPerCurrency(totalMoneyReceivedPerCurrencyAux);
+        const totalMoneyDepositedPerCurrencyAux = calculateTotalMoneyDepositedPerCurrency();
+        setTotalMoneyDepositedPerCurrency(totalMoneyDepositedPerCurrencyAux);
     };
 
-    const calculateTotalComissionsPaidPerCurrency = () => {
+    const calculateTotalMoneyDepositedPerCurrency = () => {
         let totals = {};
 
         currencies.forEach((c) => {
@@ -222,7 +189,6 @@ export default function TransactionsPage(props) {
 
         if (filteredData) {
             filteredData
-                .filter((r) => r.description === 'Comissões de transação DEGIRO e/ou taxas de terceiros')
                 .forEach((r) => {
                     if (r.change.value) {
                         const number = parseFloat(r.change.value.replace(',', '.'));
@@ -239,64 +205,6 @@ export default function TransactionsPage(props) {
 
         currencies.forEach((c) => {
             totals[c] = Math.abs(totals[c]);
-            totalsAux.push({
-                currency: c,
-                total: totals[c]
-            });
-        });
-
-        return totalsAux;
-    };
-
-    const calculateTotalDividendsReceivedPerCurrency = () => {
-        let totals = {};
-
-        currencies.forEach((c) => {
-            totals[c] = 0;
-        });
-
-        if (filteredData) {
-            filteredData
-                .filter((r) => r.description.toUpperCase() === 'DIVIDENDO')
-                .forEach((r) => {
-                    if (r.change.value) {
-                        const number = parseFloat(r.change.value.replace(',', '.'));
-                        if (isNaN(number)) {
-                            console.log(r.change.value);
-                        } else {
-                            totals[r.change.currency] += number;
-                        }
-                    }
-                });
-        }
-
-        let totalsAux = [];
-
-        currencies.forEach((c) => {
-            totals[c] = Math.abs(totals[c]);
-            totalsAux.push({
-                currency: c,
-                total: totals[c]
-            });
-        });
-
-        return totalsAux;
-    };
-
-    const calculateTotalMoneyReceivedPerCurrency = (totalDividendsReceivedPerCurrencyAux, totalTaxesPaidPerCurrencyAux) => {
-        let totals = {};
-
-        currencies.forEach((c) => {
-            var a = totalDividendsReceivedPerCurrencyAux?.find((t) => t.currency === c).total;
-
-            var b = totalTaxesPaidPerCurrencyAux?.find((t) => t.currency === c)?.total;
-
-            totals[c] = a - b;
-        });
-
-        let totalsAux = [];
-
-        currencies.forEach((c) => {
             totalsAux.push({
                 currency: c,
                 total: totals[c]
@@ -315,10 +223,6 @@ export default function TransactionsPage(props) {
         setPage(0);
     };
 
-    const handleSelectedProductChange = (event) => {
-        setSelectedProducts(typeof value === 'string' ? value.split(',') : event.target.value);
-    };
-
     const handleSelectedCurrencyChange = (event) => {
         setSelectedCurrencies(typeof value === 'string' ? value.split(',') : event.target.value);
     };
@@ -333,10 +237,6 @@ export default function TransactionsPage(props) {
 
     const search = () => {
         let filteredDataAux = data;
-
-        if (selectedProducts && selectedProducts.length > 0) {
-            filteredDataAux = filteredDataAux.filter((r) => selectedProducts.includes(r.product));
-        }
 
         if (selectedCurrencies && selectedCurrencies.length > 0) {
             filteredDataAux = filteredDataAux.filter((r) => selectedCurrencies.includes(r.change.currency));
@@ -356,28 +256,10 @@ export default function TransactionsPage(props) {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Grid item xs={12} sm={12} md={12} lg={12}>
                     <AnalyticPerCurrency
-                        title="Total Dividends Received Per Currency"
-                        totals={totalDividendsReceivedPerCurrency}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
-                    <AnalyticPerCurrency
-                        title="Total Dividends Received Per Currency"
-                        totals={totalDividendsReceivedPerCurrency}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
-                    <AnalyticPerCurrency
-                        title="Total Money Received Per Currency"
-                        totals={totalDividendsReceivedPerCurrency}
-                    />
-                </Grid>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
-                    <AnalyticPerCurrency
-                        title="Total Comissions Paid Per Currency"
-                        totals={totalComissionsPaidPerCurrency}
+                        title="Total Money Deposited Per Currency"
+                        totals={totalMoneyDepositedPerCurrency}
                     />
                 </Grid>
             </Grid>
@@ -389,29 +271,8 @@ export default function TransactionsPage(props) {
                     <Grid item xs={12} sm={6} md={2} lg={2}>
                         <DatePicker format="DD-MM-YYYY" sx={{width: '100%'}} label="End Date" value={endDate} onChange={handleEndDateChange}></DatePicker>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={4} lg={4}>
-                        <FormControl sx={{width: '100%'}}>
-                            <InputLabel id="product-select-label">Product</InputLabel>
-                            <Select
-                                labelId="product-select-label"
-                                value={selectedProducts}
-                                label="Product"
-                                multiple
-                                MenuProps={ProductsMenuProps}
-                                onChange={handleSelectedProductChange}
-                            >
-                                {products.map((element, index) => {
-                                    return (
-                                        <MenuItem value={element} key={index}>
-                                            {element}
-                                        </MenuItem>
-                                    );
-                                })}
-                            </Select>
-                        </FormControl>
-                    </Grid>
                     <Grid item xs={12} sm={6} md={2} lg={2}>
-                        <FormControl sx={{width: '100%'}}>
+                        <FormControl sx={{ width: '100%' }}>
                             <InputLabel id="currency-select-label">Currency</InputLabel>
                             <Select
                                 labelId="currency-select-label"
@@ -431,7 +292,7 @@ export default function TransactionsPage(props) {
                             </Select>
                         </FormControl>
                     </Grid>
-                    <Grid item xs={12} sm={6} md={2} lg={2}>
+                    <Grid item xs={12} sm={6} md={6} lg={6}>
                         <IconButton sx={{float: 'right'}} aria-label="search" size="large" onClick={search}>
                             <SearchOutlined />
                         </IconButton>
@@ -461,7 +322,6 @@ export default function TransactionsPage(props) {
                                         >
                                             <TableCell align="left">{row.date}</TableCell>
                                             <TableCell align="left">{row.hour}</TableCell>
-                                            <TableCell align="left">{row.product}</TableCell>
                                             <TableCell align="left">{row.description}</TableCell>
                                             <TableCell align="right">{row.change.value + currencySymbols[row.change.currency]}</TableCell>
                                         </TableRow>

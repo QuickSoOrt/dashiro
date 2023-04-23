@@ -11,14 +11,14 @@ import Dropzone from 'react-dropzone';
 // project import
 import MainCard from 'components/MainCard';
 import ImportedFileVisualization from './ImportedFileVisualization';
-import FileParser from 'utils/tools/file-parser';
+import PortfolioSummaryFileParser from 'utils/tools/portfolio-summary-file-parser';
 import { Alert, AlertTitle, Snackbar } from '../../../../node_modules/@mui/material/index';
 
 // ==============================|| SAMPLE PAGE ||============================== //
 
 const steps = ['Select File', 'Save File', 'Finish'];
 
-const ImportFilePage = () => {
+const ImportPortfolioSummaryFilePage = () => {
     const [activeStep, setActiveStep] = useState(0);
 
     const [selectedFile, setSelectedFile] = useState(null);
@@ -53,7 +53,7 @@ const ImportFilePage = () => {
 
                 reader.readAsText(selectedFile);
 
-                const fileParser = new FileParser();
+                const fileParser = new PortfolioSummaryFileParser();
 
                 const parsedRowsAux = fileParser.parse(selectedFileContent);
 
@@ -140,4 +140,4 @@ const ImportFilePage = () => {
     );
 };
 
-export default ImportFilePage;
+export default ImportPortfolioSummaryFilePage;
