@@ -40,20 +40,30 @@ class TransactionsFileParser {
                 hour: values[1],
                 product: values[2],
                 isin: values[3],
-                // dateValue: values[2],
-                // product: values[3],
-                // isin: values[4],
-                // description: values[5],
-                // exchangeTax: values[6],
-                // change: {
-                //     currency: values[7],
-                //     value: values[8]
-                // },
-                // balance: {
-                //     currency: values[9],
-                //     value: values[10]
-                // },
-                // idOrdem: values[11]
+                exchange: values[4],
+                quantity: values[6],
+                price: {
+                    value: values[7],
+                    currency: values[8]
+                },
+                localValue: {
+                    value: values[9],
+                    currency: values[10]
+                },
+                value: {
+                    value: values[11],
+                    currency: values[12]
+                },
+                exchangeRate: values[13],
+                transactionCosts: {
+                    value: values[14],
+                    currency: values[15]
+                },
+                total: {
+                    value: values[16],
+                    currency: values[17]
+                },
+                orderId: values[18]
             };
 
             if (parsedLine.date || parsedLine.hour || parsedLine.dateValue || parsedLine.product || parsedLine.isin || parsedLine.description) {

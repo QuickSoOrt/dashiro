@@ -1,6 +1,10 @@
 // material-ui
 import { Typography, Box, Button, Stepper, Step, StepLabel } from '@mui/material';
+import { Alert, AlertTitle, Snackbar } from '../../../../node_modules/@mui/material/index';
 import { useEffect, useState } from 'react';
+
+// third-party
+import { useDispatch, useSelector } from 'react-redux';
 
 // assets
 import { EditOutlined } from '@ant-design/icons';
@@ -11,8 +15,8 @@ import Dropzone from 'react-dropzone';
 // project import
 import MainCard from 'components/MainCard';
 import ImportedFileVisualization from './ImportedFileVisualization';
-import FileParser from 'utils/tools/portfolio-summary-file-parser';
-import { Alert, AlertTitle, Snackbar } from '../../../../node_modules/@mui/material/index';
+import TransactionsFileParser from 'utils/tools/transactions-file-parser';
+import { setTransactions } from 'store/reducers/transactions';
 
 // ==============================|| SAMPLE PAGE ||============================== //
 
@@ -25,9 +29,15 @@ const ImportTransactionsFilePage = () => {
 
     const [selectedFileContent, setSelectedFileContent] = useState('');
 
-    const [parsedRows, setParsedRows] = useState(null);
-
     const [isMessagesSnackBackOpen, setIsMessagesSnackBackOpen] = useState(false);
+
+    const a = useSelector(state => state.transactions.transactions);
+
+    useEffect(() => {
+        console.log(a);
+    }, []);
+
+    const dispatch = useDispatch();
 
     const handleCloseMessagesSnackBack = () => {
         setIsMessagesSnackBackOpen(false);
@@ -53,13 +63,11 @@ const ImportTransactionsFilePage = () => {
 
                 reader.readAsText(selectedFile);
 
-                const fileParser = new FileParser();
+                const fileParser = new TransactionsFileParser();
 
                 const parsedRowsAux = fileParser.parse(selectedFileContent);
 
-                console.log(parsedRowsAux);
-
-                setParsedRows(parsedRowsAux);
+                dispatch(setTransactions({ transactions: parsedRowsAux }));
 
                 setActiveStep((prevActiveStep) => prevActiveStep + 1);
             } else {
@@ -88,7 +96,7 @@ const ImportTransactionsFilePage = () => {
                 </Dropzone>
             );
         } else if (activeStep === 1) {
-            return <ImportedFileVisualization rows={parsedRows} />;
+            return <ImportedFileVisualization />;
         }
     };
 

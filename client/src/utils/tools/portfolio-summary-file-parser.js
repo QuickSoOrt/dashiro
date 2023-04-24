@@ -42,7 +42,7 @@ class PortfolioSummaryFileParser {
                 product: values[3],
                 isin: values[4],
                 description: values[5],
-                exchangeTax: values[6],
+                exchangeRate: values[6],
                 change: {
                     currency: values[7],
                     value: values[8]
@@ -51,7 +51,7 @@ class PortfolioSummaryFileParser {
                     currency: values[9],
                     value: values[10]
                 },
-                idOrdem: values[11]
+                orderId: values[11]
             };
 
             if (parsedLine.date || parsedLine.hour || parsedLine.dateValue || parsedLine.product || parsedLine.isin || parsedLine.description) {

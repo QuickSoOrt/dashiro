@@ -5,9 +5,10 @@ import { useState } from 'react';
 import { Box, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow } from '@mui/material';
 
 // third-party
+import { useSelector } from 'react-redux';
 
 // project import
-import { TableFooter } from '../../../../node_modules/@mui/material/index';
+import currencySymbols from 'data/currency-symbols';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -51,41 +52,59 @@ const headCells = [
         label: 'Hour'
     },
     {
-        id: 'dateValue',
-        align: 'left',
-        disablePadding: true,
-        label: 'Date Value'
-    },
-    {
         id: 'product',
         align: 'left',
         disablePadding: true,
         label: 'Product'
     },
     {
-        id: 'description',
+        id: 'exchange',
         align: 'left',
         disablePadding: true,
-        label: 'Description'
+        label: 'Exchange'
     },
     {
-        id: 'tax',
+        id: 'quantity',
         align: 'right',
         disablePadding: true,
-        label: 'Tax'
+        label: 'Qty'
     },
     {
-        id: 'change',
+        id: 'price',
         align: 'right',
         disablePadding: true,
-        label: 'Change'
+        label: 'Price'
     },
     {
-        id: 'balance',
+        id: 'localValue',
         align: 'right',
         disablePadding: true,
-        label: 'Balance'
-    }
+        label: 'Local Value'
+    },
+    {
+        id: 'value',
+        align: 'right',
+        disablePadding: true,
+        label: 'Value'
+    },
+    {
+        id: 'exchangeRate',
+        align: 'right',
+        disablePadding: true,
+        label: 'Exchange Rate'
+    },
+    {
+        id: 'transactionCosts',
+        align: 'right',
+        disablePadding: true,
+        label: 'Transaction Costs'
+    },
+    {
+        id: 'total',
+        align: 'right',
+        disablePadding: true,
+        label: 'Total'
+    },
 ];
 
 // ==============================|| ORDER TABLE - HEADER ||============================== //
@@ -116,14 +135,14 @@ OrderTableHead.propTypes = {
 
 // ==============================|| ORDER TABLE ||============================== //
 
-export default function ImportedFileVisualization(props) {
+export default function ImportedFileVisualization() {
     const [order] = useState('desc');
 
     const [orderBy] = useState('date');
     
     const [selected] = useState([]);
 
-    const [rows] = useState(props.rows);
+    const rows = useSelector(state => state.transactions.transactions);
 
     const [page, setPage] = useState(0);
     
@@ -151,7 +170,6 @@ export default function ImportedFileVisualization(props) {
                             getComparator(order, orderBy)
                         ).map((row, index) => {
                             const isItemSelected = isSelected(row.trackingNo);
-                            const labelId = `enhanced-table-checkbox-${index}`;
 
                             return (
                                 <TableRow
@@ -164,12 +182,15 @@ export default function ImportedFileVisualization(props) {
                                 >
                                     <TableCell align="left">{row.date}</TableCell>
                                     <TableCell align="right">{row.hour}</TableCell>
-                                    <TableCell align="left">{row.dateValue}</TableCell>
                                     <TableCell align="left">{row.product}</TableCell>
-                                    <TableCell align="left">{row.description}</TableCell>
-                                    <TableCell align="right">{row.exchangeTax}</TableCell>
-                                    <TableCell align="right">{row.change.value}</TableCell>
-                                    <TableCell align="right">{row.balance.value}</TableCell>
+                                    <TableCell align="left">{row.exchange}</TableCell>
+                                    <TableCell align="right">{row.quantity}</TableCell>
+                                    <TableCell align="right">{row.price.value + currencySymbols[row.price.currency]}</TableCell>
+                                    <TableCell align="right">{row.localValue.value + currencySymbols[row.localValue.currency]}</TableCell>
+                                    <TableCell align="right">{row.value.value + currencySymbols[row.value.currency]}</TableCell>
+                                    <TableCell align="right">{row.exchangeRate}</TableCell>
+                                    <TableCell align="right">{row.transactionCosts.value + currencySymbols[row.transactionCosts.currency]}</TableCell>
+                                    <TableCell align="right">{row.total.value + currencySymbols[row.total.currency]}</TableCell>
                                 </TableRow>
                             );
                         })}
