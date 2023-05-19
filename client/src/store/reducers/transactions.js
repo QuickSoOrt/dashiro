@@ -6,14 +6,17 @@ const initialState = {
     transactions: []
 };
 
-// ==============================|| SLICE - MENU ||============================== //
+// ==============================|| SLICE - TRANSACTIONS ||============================== //
 
 const transactions = createSlice({
     name: 'transactions',
     initialState,
     reducers: {
         setTransactions: (state, action) => {
-            state.transactions = action.payload.transactions;
+            return {
+                ...state,
+                transactions: action.payload.transactions
+            };
         },
     }
 });
