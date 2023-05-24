@@ -15,6 +15,7 @@ import AnalyticPerCurrency from 'components/cards/statistics/AnalyticPerCurrency
 import DateParser from 'utils/tools/date-parser';
 import currencySymbols from 'data/currency-symbols';
 import mockData from 'data/mock-data';
+import { useSelector } from '../../../../node_modules/react-redux/es/exports';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -127,7 +128,7 @@ export default function DepositsPage(props) {
 
     const [selected] = useState([]);
 
-    const [rows] = useState(mockData);
+    const rows = useSelector(state => state.portfolioSummary.portfolioSummary);
 
     const [data, setData] = useState(() => {
         if (rows) {
@@ -146,8 +147,8 @@ export default function DepositsPage(props) {
     });
 
     const [currencies, setCurrencies] = useState(() => {
-        if (rows) {
-            return rows
+        if (data) {
+            return data
                 .map((r) => r.change.currency)
                 .filter((value, index, self) => {
                     return self.indexOf(value) === index && value.length !== 0;
@@ -256,7 +257,7 @@ export default function DepositsPage(props) {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-                <Grid item xs={12} sm={12} md={12} lg={12}>
+                <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
                         title="Total Money Deposited Per Currency"
                         totals={totalMoneyDepositedPerCurrency}
@@ -334,7 +335,7 @@ export default function DepositsPage(props) {
                         rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                         colSpan={3}
                         component="div"
-                        count={rows.length}
+                        count={filteredData.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         SelectProps={{

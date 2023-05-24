@@ -27,15 +27,9 @@ const ImportTransactionsFilePage = () => {
 
     const [selectedFile, setSelectedFile] = useState(null);
 
-    const [selectedFileContent, setSelectedFileContent] = useState('');
-
     const [isMessagesSnackBackOpen, setIsMessagesSnackBackOpen] = useState(false);
 
-    const a = useSelector(state => state.transactions.transactions);
-
-    useEffect(() => {
-        console.log(a);
-    }, []);
+    const [parsedRows, setParsedRows] = useState(null);
 
     const dispatch = useDispatch();
 
@@ -51,28 +45,33 @@ const ImportTransactionsFilePage = () => {
         setActiveStep((prevActiveStep) => prevActiveStep - 1);
     };
 
-    const handleNext = () => {
+    const handleNext = async () => {
         if (activeStep === 0) {
             if (selectedFile) {
                 const reader = new FileReader();
 
-                reader.onload = async (e) => {
-                    const content = e.target.result;
-                    setSelectedFileContent(content);
+                reader.onloadend = async () => {
+                    const content = reader.result;
+
+                    const fileParser = new TransactionsFileParser();
+
+                    const parsedRowsAux = await fileParser.parse(content);
+
+                    setParsedRows(parsedRowsAux);
+
+                    setActiveStep((prevActiveStep) => prevActiveStep + 1);
                 };
 
                 reader.readAsText(selectedFile);
-
-                const fileParser = new TransactionsFileParser();
-
-                const parsedRowsAux = fileParser.parse(selectedFileContent);
-
-                dispatch(setTransactions({ transactions: parsedRowsAux }));
-
-                setActiveStep((prevActiveStep) => prevActiveStep + 1);
+                
             } else {
                 setIsMessagesSnackBackOpen(true);
             }
+        }
+        else if (activeStep === 1) {
+            dispatch(setTransactions({ transactions: parsedRows }));
+
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
     };
 
@@ -96,7 +95,10 @@ const ImportTransactionsFilePage = () => {
                 </Dropzone>
             );
         } else if (activeStep === 1) {
-            return <ImportedFileVisualization />;
+            return <ImportedFileVisualization rows={parsedRows}/>;
+        }
+        else if (activeStep === 2) {
+            return <p>Import completed successfully.</p>
         }
     };
 
@@ -125,9 +127,18 @@ const ImportTransactionsFilePage = () => {
                             <Button variant="contained" disabled={activeStep === 0} onClick={handleBack}>
                                 Back
                             </Button>
-                            <Button variant="contained" disabled={activeStep === 1} onClick={handleNext}>
-                                Next
-                            </Button>
+                            {
+                                activeStep === 0 &&
+                                <Button variant="contained" onClick={handleNext}>
+                                    Import
+                                </Button>
+                            }
+                            {
+                                activeStep === 1 &&
+                                <Button variant="contained" onClick={handleNext}>
+                                    Save
+                                </Button>
+                            }
                         </Box>
                     </Box>
                 )}

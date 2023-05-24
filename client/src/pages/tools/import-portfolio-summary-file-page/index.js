@@ -13,6 +13,8 @@ import MainCard from 'components/MainCard';
 import ImportedFileVisualization from './ImportedFileVisualization';
 import PortfolioSummaryFileParser from 'utils/tools/portfolio-summary-file-parser';
 import { Alert, AlertTitle, Snackbar } from '../../../../node_modules/@mui/material/index';
+import { setPortfolioSummary } from 'store/reducers/portfolioSummary';
+import { useDispatch } from '../../../../node_modules/react-redux/es/exports';
 
 // ==============================|| SAMPLE PAGE ||============================== //
 
@@ -23,11 +25,11 @@ const ImportPortfolioSummaryFilePage = () => {
 
     const [selectedFile, setSelectedFile] = useState(null);
 
-    const [selectedFileContent, setSelectedFileContent] = useState('');
-
     const [parsedRows, setParsedRows] = useState(null);
 
     const [isMessagesSnackBackOpen, setIsMessagesSnackBackOpen] = useState(false);
+
+    const dispatch = useDispatch();
 
     const handleCloseMessagesSnackBack = () => {
         setIsMessagesSnackBackOpen(false);
@@ -46,25 +48,27 @@ const ImportPortfolioSummaryFilePage = () => {
             if (selectedFile) {
                 const reader = new FileReader();
 
-                reader.onload = async (e) => {
-                    const content = e.target.result;
-                    setSelectedFileContent(content);
+                reader.onloadend = async () => {
+                    const content = reader.result;
+                    
+                    const fileParser = new PortfolioSummaryFileParser();
+
+                    const parsedRowsAux = fileParser.parse(content);
+
+                    setParsedRows(parsedRowsAux);
+
+                    setActiveStep((prevActiveStep) => prevActiveStep + 1);
                 };
 
                 reader.readAsText(selectedFile);
-
-                const fileParser = new PortfolioSummaryFileParser();
-
-                const parsedRowsAux = fileParser.parse(selectedFileContent);
-
-                console.log(parsedRowsAux);
-
-                setParsedRows(parsedRowsAux);
-
-                setActiveStep((prevActiveStep) => prevActiveStep + 1);
             } else {
                 setIsMessagesSnackBackOpen(true);
             }
+        }
+        else if (activeStep === 1) {
+            dispatch(setPortfolioSummary({ portfolioSummary: parsedRows }));
+
+            setActiveStep((prevActiveStep) => prevActiveStep + 1);
         }
     };
 
@@ -89,6 +93,8 @@ const ImportPortfolioSummaryFilePage = () => {
             );
         } else if (activeStep === 1) {
             return <ImportedFileVisualization rows={parsedRows} />;
+        } else if (activeStep === 2) {
+            return <p>Import completed successfully.</p>
         }
     };
 
@@ -117,9 +123,18 @@ const ImportPortfolioSummaryFilePage = () => {
                             <Button variant="contained" disabled={activeStep === 0} onClick={handleBack}>
                                 Back
                             </Button>
-                            <Button variant="contained" disabled={activeStep === 1} onClick={handleNext}>
-                                Next
-                            </Button>
+                            {
+                                activeStep === 0 &&
+                                <Button variant="contained" onClick={handleNext}>
+                                    Import
+                                </Button>
+                            }
+                            {
+                                activeStep === 1 &&
+                                <Button variant="contained" onClick={handleNext}>
+                                    Save
+                                </Button>
+                            }
                         </Box>
                     </Box>
                 )}

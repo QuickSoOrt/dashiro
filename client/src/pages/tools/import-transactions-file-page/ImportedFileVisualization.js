@@ -135,14 +135,14 @@ OrderTableHead.propTypes = {
 
 // ==============================|| ORDER TABLE ||============================== //
 
-export default function ImportedFileVisualization() {
+export default function ImportedFileVisualization(props) {
     const [order] = useState('desc');
 
     const [orderBy] = useState('date');
     
     const [selected] = useState([]);
 
-    const rows = useSelector(state => state.transactions.transactions);
+    const [rows] = useState(props.rows);
 
     const [page, setPage] = useState(0);
     

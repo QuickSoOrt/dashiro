@@ -15,6 +15,7 @@ import AnalyticPerCurrency from 'components/cards/statistics/AnalyticPerCurrency
 import DateParser from 'utils/tools/date-parser';
 import currencySymbols from 'data/currency-symbols';
 import mockData from 'data/mock-data';
+import { useSelector } from '../../../../node_modules/react-redux/es/exports';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -139,7 +140,7 @@ export default function DividendsPage(props) {
 
     const [selected] = useState([]);
 
-    const [rows] = useState(mockData);
+    const rows = useSelector(state => state.portfolioSummary.portfolioSummary);
 
     const [data, setData] = useState(() => {
         if (rows) {
@@ -158,8 +159,8 @@ export default function DividendsPage(props) {
     });
 
     const [currencies, setCurrencies] = useState(() => {
-        if (rows) {
-            return rows
+        if (data) {
+            return data
                 .map((r) => r.change.currency)
                 .filter((value, index, self) => {
                     return self.indexOf(value) === index && value.length !== 0;
@@ -170,8 +171,8 @@ export default function DividendsPage(props) {
     });
 
     const [products, setProducts] = useState(() => {
-        if (rows) {
-            return rows
+        if (data) {
+            return data
                 .map((r) => r.product)
                 .filter((value, index, self) => {
                     return self.indexOf(value) === index && value.length !== 0;
@@ -244,7 +245,7 @@ export default function DividendsPage(props) {
         let totalsAux = [];
 
         currencies.forEach((c) => {
-            totals[c] = Math.abs(totals[c]);
+            totals[c] = Math.abs(totals[c].toFixed(2));
             totalsAux.push({
                 currency: c,
                 total: totals[c]
@@ -362,19 +363,19 @@ export default function DividendsPage(props) {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-                <Grid item xs={12} sm={6} md={4} lg={4}>
+                <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
                         title="Total Dividends Received Per Currency"
                         totals={totalDividendsReceivedPerCurrency}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={4}>
+                <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
                         title="Total Money Received Per Currency"
                         totals={totalMoneyReceivedPerCurrency}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={4} lg={4}>
+                <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
                         title="Total Taxes Paid Per Currency"
                         totals={totalTaxesPaidPerCurrency}
@@ -475,7 +476,7 @@ export default function DividendsPage(props) {
                         rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                         colSpan={3}
                         component="div"
-                        count={rows.length}
+                        count={filteredData.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         SelectProps={{

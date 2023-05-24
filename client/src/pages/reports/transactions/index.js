@@ -15,6 +15,9 @@ import AnalyticPerCurrency from 'components/cards/statistics/AnalyticPerCurrency
 import DateParser from 'utils/tools/date-parser';
 import currencySymbols from 'data/currency-symbols';
 import mockData from 'data/mock-data';
+import { useSelector } from '../../../../node_modules/react-redux/es/exports';
+import Analytic from 'components/cards/statistics/Analytic';
+import { filter } from 'lodash';
 
 function descendingComparator(a, b, orderBy) {
     if (b[orderBy] < a[orderBy]) {
@@ -45,7 +48,7 @@ function stableSort(array, comparator) {
 // ==============================|| ORDER TABLE - HEADER CELL ||============================== //
 
 const headCells = [
-    {
+     {
         id: 'date',
         align: 'left',
         disablePadding: true,
@@ -53,7 +56,7 @@ const headCells = [
     },
     {
         id: 'hour',
-        align: 'left',
+        align: 'right',
         disablePadding: true,
         label: 'Hour'
     },
@@ -64,16 +67,52 @@ const headCells = [
         label: 'Product'
     },
     {
-        id: 'description',
+        id: 'exchange',
         align: 'left',
         disablePadding: true,
-        label: 'Description'
+        label: 'Exchange'
     },
     {
-        id: 'change',
+        id: 'quantity',
         align: 'right',
         disablePadding: true,
-        label: 'Change'
+        label: 'Qty'
+    },
+    {
+        id: 'price',
+        align: 'right',
+        disablePadding: true,
+        label: 'Price'
+    },
+    {
+        id: 'localValue',
+        align: 'right',
+        disablePadding: true,
+        label: 'Local Value'
+    },
+    {
+        id: 'value',
+        align: 'right',
+        disablePadding: true,
+        label: 'Value'
+    },
+    {
+        id: 'exchangeRate',
+        align: 'right',
+        disablePadding: true,
+        label: 'Exchange Rate'
+    },
+    {
+        id: 'transactionCosts',
+        align: 'right',
+        disablePadding: true,
+        label: 'Transaction Costs'
+    },
+    {
+        id: 'total',
+        align: 'right',
+        disablePadding: true,
+        label: 'Total'
     },
 ];
 
@@ -133,11 +172,11 @@ export default function TransactionsPage(props) {
 
     const [selected] = useState([]);
 
-    const [rows] = useState(mockData);
+    const rows = useSelector(state => state.transactions.transactions);
 
     const [data, setData] = useState(() => {
         if (rows) {
-            return rows.filter((r) => r.description.includes('Compra') || r.description.includes('Venda') || r.description.includes('Comissões de transação DEGIRO e/ou taxas de terceiros'));
+            return rows;
         } else {
             return [];
         }
@@ -145,27 +184,28 @@ export default function TransactionsPage(props) {
 
     const [filteredData, setFilteredData] = useState(() => {
         if (rows) {
-            return rows.filter((r) => r.description.includes('Compra') || r.description.includes('Venda') || r.description.includes('Comissões de transação DEGIRO e/ou taxas de terceiros'));
+            return rows;
         } else {
             return [];
         }
     });
 
     const [currencies, setCurrencies] = useState(() => {
-        if (rows) {
-            return rows
-                .map((r) => r.change.currency)
-                .filter((value, index, self) => {
-                    return self.indexOf(value) === index && value.length !== 0;
-                });
+        if (data) {
+            // return data
+            //     .map((r) => r.change.currency)
+            //     .filter((value, index, self) => {
+            //         return self.indexOf(value) === index && value.length !== 0;
+            //     });
+            return [];
         } else {
             return [];
         }
     });
 
     const [products, setProducts] = useState(() => {
-        if (rows) {
-            return rows
+        if (data) {
+            return data
                 .map((r) => r.product)
                 .filter((value, index, self) => {
                     return self.indexOf(value) === index && value.length !== 0;
@@ -175,11 +215,7 @@ export default function TransactionsPage(props) {
         }
     });
 
-    const [totalDividendsReceivedPerCurrency, setTotalDividendsReceivedPerCurrency] = useState([]);
-
-    const [totalComissionsPaidPerCurrency, setTotalComissionsPaidPerCurrency] = useState([]);
-
-    const [totalMoneyReceivedPerCurrency, setTotalMoneyReceivedPerCurrency] = useState([]);
+    const [totalCommissionsPaidPerCurrency, setTotalCommissionsPaidPerCurrency] = useState([]);
 
     const [page, setPage] = useState(0);
 
@@ -200,36 +236,33 @@ export default function TransactionsPage(props) {
     }, [filteredData]);
 
     const calculateTotals = () => {
-        const totalComissionsPaidPerCurrencyAux = calculateTotalComissionsPaidPerCurrency();
-        setTotalComissionsPaidPerCurrency(totalComissionsPaidPerCurrencyAux);
-
-        const totalDividendsReceivedPerCurrencyAux = calculateTotalDividendsReceivedPerCurrency();
-        setTotalDividendsReceivedPerCurrency(totalDividendsReceivedPerCurrencyAux);
-
-        // const totalMoneyReceivedPerCurrencyAux = calculateTotalMoneyReceivedPerCurrency(
-        //     totalDividendsReceivedPerCurrencyAux,
-        //     totalTaxesPaidPerCurrencyAux
-        // );
-        // setTotalMoneyReceivedPerCurrency(totalMoneyReceivedPerCurrencyAux);
+        const totalCommissionsPaidPerCurrencyAux = calculateTotalCommissionsPaidPerCurrency();
+        setTotalCommissionsPaidPerCurrency(totalCommissionsPaidPerCurrencyAux);
     };
 
-    const calculateTotalComissionsPaidPerCurrency = () => {
-        let totals = {};
+    const calculateTotalCommissionsPaidPerCurrency = () => {
+       let totals = {};
 
-        currencies.forEach((c) => {
+        const commissionsCurrencies = filteredData
+                .map((r) => r.transactionCosts.currency)
+                .filter((value, index, self) => {
+                    return self.indexOf(value) === index && value.length !== 0;
+                });
+
+        commissionsCurrencies.forEach((c) => {
             totals[c] = 0;
         });
 
         if (filteredData) {
             filteredData
-                .filter((r) => r.description === 'Comissões de transação DEGIRO e/ou taxas de terceiros')
                 .forEach((r) => {
-                    if (r.change.value) {
-                        const number = parseFloat(r.change.value.replace(',', '.'));
+                    if (r.transactionCosts.value) {
+                        console.log(r.transactionCosts);
+                        const number = parseFloat(r.transactionCosts.value.replace(',', '.'));
                         if (isNaN(number)) {
-                            console.log(r.change.value);
+                            console.log(r.transactionCosts.value);
                         } else {
-                            totals[r.change.currency] += number;
+                            totals[r.transactionCosts.currency] += number;
                         }
                     }
                 });
@@ -237,66 +270,8 @@ export default function TransactionsPage(props) {
 
         let totalsAux = [];
 
-        currencies.forEach((c) => {
-            totals[c] = Math.abs(totals[c]);
-            totalsAux.push({
-                currency: c,
-                total: totals[c]
-            });
-        });
-
-        return totalsAux;
-    };
-
-    const calculateTotalDividendsReceivedPerCurrency = () => {
-        let totals = {};
-
-        currencies.forEach((c) => {
-            totals[c] = 0;
-        });
-
-        if (filteredData) {
-            filteredData
-                .filter((r) => r.description.toUpperCase() === 'DIVIDENDO')
-                .forEach((r) => {
-                    if (r.change.value) {
-                        const number = parseFloat(r.change.value.replace(',', '.'));
-                        if (isNaN(number)) {
-                            console.log(r.change.value);
-                        } else {
-                            totals[r.change.currency] += number;
-                        }
-                    }
-                });
-        }
-
-        let totalsAux = [];
-
-        currencies.forEach((c) => {
-            totals[c] = Math.abs(totals[c]);
-            totalsAux.push({
-                currency: c,
-                total: totals[c]
-            });
-        });
-
-        return totalsAux;
-    };
-
-    const calculateTotalMoneyReceivedPerCurrency = (totalDividendsReceivedPerCurrencyAux, totalTaxesPaidPerCurrencyAux) => {
-        let totals = {};
-
-        currencies.forEach((c) => {
-            var a = totalDividendsReceivedPerCurrencyAux?.find((t) => t.currency === c).total;
-
-            var b = totalTaxesPaidPerCurrencyAux?.find((t) => t.currency === c)?.total;
-
-            totals[c] = a - b;
-        });
-
-        let totalsAux = [];
-
-        currencies.forEach((c) => {
+        commissionsCurrencies.forEach((c) => {
+            totals[c] = Math.abs(totals[c].toFixed(2));
             totalsAux.push({
                 currency: c,
                 total: totals[c]
@@ -358,26 +333,26 @@ export default function TransactionsPage(props) {
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
                 <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
-                        title="Total Dividends Received Per Currency"
-                        totals={totalDividendsReceivedPerCurrency}
+                        totals={totalCommissionsPaidPerCurrency}
+                        title="Total Profit / Loss Per Currency"
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
-                        title="Total Dividends Received Per Currency"
-                        totals={totalDividendsReceivedPerCurrency}
+                        totals={totalCommissionsPaidPerCurrency}
+                        title="Total Commissions Paid Per Currency"
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
-                        title="Total Money Received Per Currency"
-                        totals={totalDividendsReceivedPerCurrency}
+                        totals={totalCommissionsPaidPerCurrency}
+                        title="Total Commissions Paid Per Currency"
                     />
                 </Grid>
                 <Grid item xs={12} sm={6} md={3} lg={3}>
                     <AnalyticPerCurrency
-                        title="Total Comissions Paid Per Currency"
-                        totals={totalComissionsPaidPerCurrency}
+                        totals={totalCommissionsPaidPerCurrency}
+                        title="Total Commissions Paid Per Currency"
                     />
                 </Grid>
             </Grid>
@@ -460,10 +435,16 @@ export default function TransactionsPage(props) {
                                             selected={isItemSelected}
                                         >
                                             <TableCell align="left">{row.date}</TableCell>
-                                            <TableCell align="left">{row.hour}</TableCell>
+                                            <TableCell align="right">{row.hour}</TableCell>
                                             <TableCell align="left">{row.product}</TableCell>
-                                            <TableCell align="left">{row.description}</TableCell>
-                                            <TableCell align="right">{row.change.value + currencySymbols[row.change.currency]}</TableCell>
+                                            <TableCell align="left">{row.exchange}</TableCell>
+                                            <TableCell align="right">{row.quantity}</TableCell>
+                                            <TableCell align="right">{row.price.value + currencySymbols[row.price.currency]}</TableCell>
+                                            <TableCell align="right">{row.localValue.value + currencySymbols[row.localValue.currency]}</TableCell>
+                                            <TableCell align="right">{row.value.value + currencySymbols[row.value.currency]}</TableCell>
+                                            <TableCell align="right">{row.exchangeRate}</TableCell>
+                                            <TableCell align="right">{row.transactionCosts.value + currencySymbols[row.transactionCosts.currency]}</TableCell>
+                                            <TableCell align="right">{row.total.value + currencySymbols[row.total.currency]}</TableCell>
                                         </TableRow>
                                     );
                                 })}
@@ -474,7 +455,7 @@ export default function TransactionsPage(props) {
                         rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
                         colSpan={3}
                         component="div"
-                        count={rows.length}
+                        count={filteredData.length}
                         rowsPerPage={rowsPerPage}
                         page={page}
                         SelectProps={{

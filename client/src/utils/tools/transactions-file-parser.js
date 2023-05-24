@@ -25,7 +25,7 @@ class TransactionsFileParser {
         return values;
     };
 
-    parse(file) {
+    async parse(file) {
         const lines = file.trim().split('\n');
 
         const parsedLines = [];
