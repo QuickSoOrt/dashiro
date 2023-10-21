@@ -20,13 +20,13 @@ const reports = {
             url: '/reports/dividends',
             icon: icons.DollarOutlined
         },
-        {
-            id: 'transactions',
-            title: 'Transactions',
-            type: 'item',
-            url: '/reports/transactions',
-            icon: icons.DollarOutlined
-        },
+        // {
+        //     id: 'transactions',
+        //     title: 'Transactions',
+        //     type: 'item',
+        //     url: '/reports/transactions',
+        //     icon: icons.DollarOutlined
+        // },
         {
             id: 'deposits',
             title: 'Deposits',

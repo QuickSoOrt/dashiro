@@ -280,7 +280,7 @@ export default function DividendsPage(props) {
         let totalsAux = [];
 
         currencies.forEach((c) => {
-            totals[c] = Math.abs(totals[c]);
+            totals[c] = Math.abs(totals[c].toFixed(2));
             totalsAux.push({
                 currency: c,
                 total: totals[c]
@@ -304,6 +304,7 @@ export default function DividendsPage(props) {
         let totalsAux = [];
 
         currencies.forEach((c) => {
+            totals[c] = totals[c].toFixed(2);
             totalsAux.push({
                 currency: c,
                 total: totals[c]
@@ -363,19 +364,19 @@ export default function DividendsPage(props) {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Grid item xs={12} sm={6} md={4} lg={4}>
                     <AnalyticPerCurrency
                         title="Total Dividends Received Per Currency"
                         totals={totalDividendsReceivedPerCurrency}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Grid item xs={12} sm={6} md={4} lg={4}>
                     <AnalyticPerCurrency
                         title="Total Money Received Per Currency"
                         totals={totalMoneyReceivedPerCurrency}
                     />
                 </Grid>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Grid item xs={12} sm={6} md={4} lg={4}>
                     <AnalyticPerCurrency
                         title="Total Taxes Paid Per Currency"
                         totals={totalTaxesPaidPerCurrency}

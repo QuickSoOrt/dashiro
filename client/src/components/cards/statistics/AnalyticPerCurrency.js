@@ -33,7 +33,7 @@ const AnalyticPerCurrency = ({ title, totals }) => (
                                 </Grid>
                                 <Grid item sx={{ ml: 1.25, pl: 1 }}>
                                     <Typography variant="h4" color="inherit">
-                                        {element.total + currencySymbols[element.currency]}
+                                        {element.total.toLocaleString('en-US')}
                                     </Typography>
                                 </Grid>
                             </Grid>

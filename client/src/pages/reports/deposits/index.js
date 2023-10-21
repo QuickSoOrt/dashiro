@@ -257,7 +257,7 @@ export default function DepositsPage(props) {
     return (
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Grid container rowSpacing={4.5} columnSpacing={2.75}>
-                <Grid item xs={12} sm={6} md={3} lg={3}>
+                <Grid item xs={12} sm={6} md={4} lg={4}>
                     <AnalyticPerCurrency
                         title="Total Money Deposited Per Currency"
                         totals={totalMoneyDepositedPerCurrency}

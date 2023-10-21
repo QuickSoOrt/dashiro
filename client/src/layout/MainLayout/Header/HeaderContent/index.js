@@ -1,6 +1,6 @@
 // material-ui
 import { Box, IconButton, Link, useMediaQuery } from '@mui/material';
-import { UserOutlined } from '@ant-design/icons';
+import { QuestionCircleOutlined } from '@ant-design/icons';
 
 // project import
 import Search from './Search';
@@ -27,11 +27,11 @@ const HeaderContent = () => {
                 title="Author"
                 sx={{ color: 'text.primary', bgcolor: 'grey.100' }}
             >
-                <UserOutlined />
+                <QuestionCircleOutlined />
             </IconButton>
 
-            <Notification />
-            {!matchesXs && <Profile />}
+            {/* <Notification /> */}
+            {/* {!matchesXs && <Profile />} */}
             {matchesXs && <MobileSection />}
         </>
     );
